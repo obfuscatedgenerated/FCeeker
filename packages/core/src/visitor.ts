@@ -1,6 +1,6 @@
 import {FCRegVisitor} from "./grammar/generated/FCRegVisitor";
 import type {
-    ASTNode, AtomNode, FormulaNode,
+    ASTNode, AtomNode, ConjunctionNode, DisjunctionNode, FormulaNode, NegationNode,
     Pattern,
     RegularConstraintNode,
     Span,
@@ -10,8 +10,8 @@ import type {
 } from "./ast";
 import {type ParserRuleContext, TerminalNode} from "antlr4ng";
 import {
-    AtomContext, AtomicContext,
-    FCRegParser, FormulaContext,
+    AtomContext, AtomicContext, ConjunctionContext, DisjunctionContext,
+    FCRegParser, FormulaContext, NegationContext,
     type PatternContext,
     RegularConstraintContext, SubformulaContext,
     VariableContext,
@@ -47,7 +47,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             return {
                 start: this.#codepoint_offsets[ctx.symbol.start]!,
                 end: this.#codepoint_offsets[ctx.symbol.stop + 1]!,
-            }
+            };
         }
 
         if (!ctx.start || !ctx.stop) {
@@ -57,7 +57,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
         return {
             start: this.#codepoint_offsets[ctx.start.start]!,
             end: this.#codepoint_offsets[ctx.stop.stop + 1]!
-        }
+        };
     }
 
     override visitVariable = (ctx: VariableContext): VariableNode => {
@@ -66,7 +66,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
                 type: "NamedVariable",
                 name: ctx.getText(),
                 span: this.#get_span(ctx)
-            }
+            };
         } else if (ctx.UNIVERSE_VAR()) {
             return {
                 type: "UniverseVariable",
@@ -94,7 +94,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
                     default:
                         return substr
                 }
-            })
+            });
     }
 
     #read_pattern = (ctx: PatternContext): Pattern => {
@@ -134,13 +134,13 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             variable: this.visitVariable(ctx.variable()),
             pattern: this.#read_pattern(ctx.pattern()),
             span: this.#get_span(ctx)
-        }
+        };
     }
 
     #unescape_regex = (regex: string): string => {
         return regex
             .substring(1, regex.length - 1)
-            .replaceAll("\/", "/")
+            .replaceAll("\/", "/");
     }
 
     override visitRegularConstraint = (ctx: RegularConstraintContext): RegularConstraintNode => {
@@ -149,7 +149,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             variable: this.visitVariable(ctx.variable()),
             regex: this.#unescape_regex(ctx.REGULAR_EXPRESSION().getText()),
             span: this.#get_span(ctx)
-        }
+        };
     }
 
     override visitAtom = (ctx: AtomContext): AtomNode => {
@@ -177,5 +177,29 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
 
     override visitSubformula = (ctx: SubformulaContext): FormulaNode => {
         return this.#visit_formula(ctx.formula());
+    }
+
+    override visitNegation = (ctx: NegationContext): NegationNode => {
+        return {
+            type: "Negation",
+            formula: this.#visit_formula(ctx.formula()),
+            span: this.#get_span(ctx)
+        };
+    }
+
+    override visitConjunction = (ctx: ConjunctionContext): ConjunctionNode => {
+        return {
+            type: "Conjunction",
+            formulae: ctx.formula().map(this.#visit_formula),
+            span: this.#get_span(ctx)
+        };
+    }
+
+    override visitDisjunction = (ctx: DisjunctionContext): DisjunctionNode => {
+        return {
+            type: "Disjunction",
+            formulae: ctx.formula().map(this.#visit_formula),
+            span: this.#get_span(ctx)
+        };
     }
 }
