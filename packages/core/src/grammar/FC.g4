@@ -1,41 +1,54 @@
 grammar FC;
 
-DOUBLE_QUOTE: '"';
-SINGLE_QUOTE: '\'';
-LEFT_BRACKET: '(';
-RIGHT_BRACKET: ')';
-SEMICOLON: ';';
-
 // TODO: will later support selecting the symbols at runtime (stretch goal)
 // for now, will define a flexible syntax of unicode symbols, C style boolean ops, and english
 NEGATION: '¬' | '!' | 'NOT';
 CONJUNCTION: '∧' | '&&' | 'AND';
 DISJUNCTION: '∨' | '||' | 'OR';
-CONNECTIVE: NEGATION | CONJUNCTION | DISJUNCTION;
 
 UNIVERSAL: '∀' | 'FORALL';
 EXISTENTIAL: '∃' | 'EXISTS';
-QUANTIFIER: UNIVERSAL | EXISTENTIAL;
+quantifier: UNIVERSAL | EXISTENTIAL;
 
-EQUALS: '=';
+UNIVERSE_VAR: '𝔲' | 'UNIV' | '$U'; // $U used by Adam Hutton, supported here for cross compatability
 
-ESCAPE: '\\';
-ESCAPED_CHAR: ESCAPE (
-        DOUBLE_QUOTE |
-        SINGLE_QUOTE |
-        LEFT_BRACKET |
-        RIGHT_BRACKET |
-        SEMICOLON |
-        CONNECTIVE |
-        QUANTIFIER |
-        EQUALS
-    );
+EQUALS: '≐' | '=';
+
+LEFT_BRACKET: '(';
+RIGHT_BRACKET: ')';
+COMMA: ',';
+COLON: ':';
+
+// only supporting double quoted strings for now, it gets messy to handle the single quote escape
+STRING: '"' STRING_BODY '"';
+fragment STRING_BODY: (~('\n' | '\r' | '"' | '\\') | ESCAPED)*;
+fragment ESCAPE: '\\';
+fragment ESCAPED: (ESCAPE 'n') | (ESCAPE 'r') | (ESCAPE '"') | (ESCAPE ESCAPE);
+
+VARNAME: LETTER VARCHAR*;
+fragment LETTER: [\p{L}];
+fragment DIGIT: [\p{Nd}];
+fragment VARCHAR: LETTER | DIGIT | '_' | [\p{M}];
+
+variable: VARNAME | UNIVERSE_VAR;
+varlist: VARNAME (COMMA VARNAME)*;
+
+pattern: (VARNAME | STRING)+;
+
+equality: variable EQUALS pattern;
+atom: equality; // TODO: when regular constraints are added, they'll live here
+
+formula:
+      atom #Atomic |
+      NEGATION formula #Negation |
+      formula CONJUNCTION formula #Conjunction |
+      formula DISJUNCTION formula #Disjunction |
+      quantifier varlist COLON formula #Quantification |
+      LEFT_BRACKET formula RIGHT_BRACKET #Subformula
+      ;
+
+start: formula EOF;
 
 WS: [ \n\t\r]+ -> skip;
-VARNAME_CHAR: (~('"' | '\'' | '(' | ')' | ';') | ESCAPED_CHAR);
-STRING_CHAR: .;
 
-string: (SINGLE_QUOTE (STRING_CHAR*) SINGLE_QUOTE) | (DOUBLE_QUOTE (STRING_CHAR*) DOUBLE_QUOTE);
-varname: VARNAME_CHAR+;
-
-// this wont work yet, needs some revision
+// TODO: if supporting multiple statements in one input, may be worth adding newline/semicolon here. if not, can leave as a simple .split
