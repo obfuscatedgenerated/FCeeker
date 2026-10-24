@@ -1,7 +1,7 @@
 import {FCRegVisitor} from "./grammar/generated/FCRegVisitor";
 import type {
-    ASTNode, AtomNode, ConjunctionNode, DisjunctionNode, FormulaNode, NegationNode,
-    Pattern,
+    ASTNode, AtomNode, ConjunctionNode, DisjunctionNode, FormulaNode, NamedVariableNode, NegationNode,
+    Pattern, QuantificationNode,
     RegularConstraintNode,
     Span,
     StringLiteralNode,
@@ -12,9 +12,9 @@ import {type ParserRuleContext, TerminalNode} from "antlr4ng";
 import {
     AtomContext, AtomicContext, ConjunctionContext, DisjunctionContext,
     FCRegParser, FormulaContext, NegationContext,
-    type PatternContext,
+    type PatternContext, QuantificationContext,
     RegularConstraintContext, SubformulaContext,
-    VariableContext,
+    VariableContext, VarListContext,
     WordEquationContext
 } from "./grammar/generated/FCRegParser";
 
@@ -223,6 +223,50 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
         return {
             type: "Disjunction",
             formulae: flattened,
+            span: this.#get_span(ctx)
+        };
+    }
+
+    #read_var_list = (ctx: VarListContext): NamedVariableNode[] => {
+        const variables: NamedVariableNode[] = [];
+
+        for (const child of ctx.children) {
+            if (!(child instanceof TerminalNode)) {
+                throw new Error("Expected only terminals to be children of a var list");
+            }
+
+            if (child.symbol.type === FCRegParser.VARNAME) {
+                variables.push({
+                    type: "NamedVariable",
+                    name: child.getText(),
+                    span: this.#get_span(child)
+                });
+            } else if (child.symbol.type === FCRegParser.COMMA) {
+                // silently skip
+            } else {
+                throw new Error(`Unexpected terminal of type ${FCRegParser.symbolicNames[child.symbol.type]} passed to pattern`);
+            }
+        }
+
+        return variables;
+    }
+
+    override visitQuantification = (ctx: QuantificationContext): QuantificationNode => {
+        const quantifier = ctx.quantifier();
+
+        let type: "UniversalQuantification" | "ExistentialQuantification";
+        if (quantifier.UNIVERSAL()) {
+            type = "UniversalQuantification";
+        } else if (quantifier.EXISTENTIAL()) {
+            type = "ExistentialQuantification";
+        } else {
+            throw new Error("Unexpected quantifier type");
+        }
+
+        return {
+            type,
+            formula: this.#visit_formula(ctx.formula()),
+            variables: this.#read_var_list(ctx.varList()),
             span: this.#get_span(ctx)
         };
     }
