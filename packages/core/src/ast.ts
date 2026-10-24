@@ -25,10 +25,12 @@ export interface StringLiteralNode extends ASTNodeBase {
     value: string;
 }
 
+export type Pattern = (VariableNode | StringLiteralNode)[];
+
 export interface WordEquationNode extends ASTNodeBase {
     type: "WordEquation";
     variable: VariableNode;
-    pattern: readonly (VariableNode | StringLiteralNode)[];
+    pattern: Readonly<Pattern>;
 }
 
 export interface RegularConstraintNode extends ASTNodeBase {

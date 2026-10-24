@@ -1,7 +1,7 @@
 import {FCRegVisitor} from "./grammar/generated/FCRegVisitor";
-import type {ASTNode, Span, VariableNode} from "./ast";
-import {ParserRuleContext} from "antlr4ng";
-import type {VariableContext} from "./grammar/generated/FCRegParser";
+import type {ASTNode, Pattern, Span, StringLiteralNode, VariableNode, WordEquationNode} from "./ast";
+import {type ParserRuleContext, TerminalNode} from "antlr4ng";
+import {FCRegParser, type PatternContext, VariableContext, WordEquationContext} from "./grammar/generated/FCRegParser";
 
 export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     readonly #codepoint_offsets: number[];
@@ -27,7 +27,14 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     }
 
     // then the offset table can be used to get the ast node span (which is in utf-16 char offsets)
-    #get_span = (ctx: ParserRuleContext): Span => {
+    #get_span = (ctx: ParserRuleContext | TerminalNode): Span => {
+        if (ctx instanceof TerminalNode) {
+            return {
+                start: this.#codepoint_offsets[ctx.symbol.start]!,
+                end: this.#codepoint_offsets[ctx.symbol.stop + 1]!,
+            }
+        }
+
         if (!ctx.start || !ctx.stop) {
             throw new Error("Missing span");
         }
@@ -52,6 +59,66 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             };
         } else {
             throw new Error("Unrecognised variable token");
+        }
+    }
+
+    #unescape_string = (str: string): string => {
+        return str
+            .substring(1, str.length - 1)
+            .replace(/\\./g, (substr) => {
+                // replace the defined escapes as a single regex based pass so they don't interfere
+                switch (substr.substring(1)) {
+                    case "n":
+                        return "\n"
+                    case "r":
+                        return "\r"
+                    case "\"":
+                        return "\""
+                    case "\\":
+                        return "\\"
+                    default:
+                        return substr
+                }
+            })
+    }
+
+    #read_pattern = (ctx: PatternContext): Pattern => {
+        const pattern: Pattern = [];
+
+        for (const child of ctx.children) {
+            if (child instanceof VariableContext) {
+                pattern.push(this.visitVariable(child));
+            } else if (child instanceof TerminalNode) {
+                if (child.symbol.type === FCRegParser.EMPTY) {
+                    // normalise empty word symbols to empty string literals
+                    pattern.push({
+                        type: "StringLiteral",
+                        value: "",
+                        span: this.#get_span(child)
+                    });
+                } else if (child.symbol.type === FCRegParser.STRING) {
+                    pattern.push({
+                        type: "StringLiteral",
+                        value: this.#unescape_string(child.getText()),
+                        span: this.#get_span(child)
+                    });
+                } else {
+                    throw new Error(`Unexpected terminal of type ${FCRegParser.symbolicNames[child.symbol.type]} passed to pattern`);
+                }
+            } else {
+                throw new Error("Unexpected pattern child type");
+            }
+        }
+
+        return pattern;
+    }
+
+    override visitWordEquation = (ctx: WordEquationContext): WordEquationNode => {
+        return {
+            type: "WordEquation",
+            variable: this.visitVariable(ctx.variable()),
+            pattern: this.#read_pattern(ctx.pattern()),
+            span: this.#get_span(ctx)
         }
     }
 }
