@@ -17,7 +17,7 @@ varlist: VARNAME (COMMA VARNAME)*;
 atom: equality; // TODO: when regular constraints are added, they'll live here
 equality: variable EQUALS pattern;
 
-pattern: (variable | STRING)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
+pattern: (variable | STRING | EMPTY)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
 
 variable: VARNAME | UNIVERSE_VAR;
 
@@ -38,6 +38,8 @@ LEFT_BRACKET: '(';
 RIGHT_BRACKET: ')';
 COMMA: ',';
 COLON: ':';
+
+EMPTY: 'ε' | 'ϵ' | 'EMPTY'; // equivalent to "", but looks more proper
 
 // only supporting double quoted strings for now, it gets messy to handle the single quote escape
 STRING: '"' STRING_BODY '"';
