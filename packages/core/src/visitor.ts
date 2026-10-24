@@ -8,14 +8,15 @@ import type {
     WordEquationNode
 } from "./ast";
 import {type ParserRuleContext, TerminalNode} from "antlr4ng";
-import {
+import type {
     AtomContext, AtomicContext, ConjunctionContext, DisjunctionContext,
-    FCRegParser, FormulaContext, NegationContext,
-    type PatternContext, QuantificationContext, QueryContext,
+    FormulaContext, NegationContext,
+    PatternContext, QuantificationContext, QueryContext,
     RegularConstraintContext, SubformulaContext,
-    VariableContext, VarListContext,
+    VarListContext,
     WordEquationContext
 } from "./grammar/generated/FCRegParser";
+import {FCRegParser, VariableContext} from "./grammar/generated/FCRegParser";
 
 export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     readonly #codepoint_offsets: number[];
