@@ -21,24 +21,9 @@ import {FCRegParser, VariableContext} from "./grammar/generated/FCRegParser";
 export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     readonly #codepoint_offsets: number[];
 
-    // antlr gives its spans in codepoints, but utf-16 offsets are what javascript uses, so build a table to convert
-    #build_codepoint_offset_table = (text: string): number[] => {
-        const codepoint_offsets: number[] = [];
-        let offset = 0;
-
-        for (const codepoint of text) {
-            codepoint_offsets.push(offset);
-            offset += codepoint.length;
-        }
-
-        codepoint_offsets.push(offset);
-
-        return codepoint_offsets;
-    }
-
-    constructor(source: string) {
+    constructor(codepoint_offsets: number[]) {
         super();
-        this.#codepoint_offsets = this.#build_codepoint_offset_table(source);
+        this.#codepoint_offsets = codepoint_offsets;
     }
 
     // then the offset table can be used to get the ast node span (which is in utf-16 char offsets)
