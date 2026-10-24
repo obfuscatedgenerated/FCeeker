@@ -1,5 +1,26 @@
 grammar FC;
 
+start: formula EOF;
+
+formula:
+      atom #Atomic |
+      NEGATION formula #Negation |
+      formula CONJUNCTION formula #Conjunction |
+      formula DISJUNCTION formula #Disjunction |
+      quantifier varlist COLON formula #Quantification |
+      LEFT_BRACKET formula RIGHT_BRACKET #Subformula
+      ;
+
+quantifier: UNIVERSAL | EXISTENTIAL;
+varlist: VARNAME (COMMA VARNAME)*;
+
+atom: equality; // TODO: when regular constraints are added, they'll live here
+equality: variable EQUALS pattern;
+
+pattern: (variable | STRING)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
+
+variable: VARNAME | UNIVERSE_VAR;
+
 // TODO: will later support selecting the symbols at runtime (stretch goal)
 // for now, will define a flexible syntax of unicode symbols, C style boolean ops, and english
 NEGATION: '¬' | '!' | 'NOT';
@@ -8,7 +29,6 @@ DISJUNCTION: '∨' | '||' | 'OR';
 
 UNIVERSAL: '∀' | 'FORALL';
 EXISTENTIAL: '∃' | 'EXISTS';
-quantifier: UNIVERSAL | EXISTENTIAL;
 
 UNIVERSE_VAR: '𝔲' | 'UNIV' | '$U'; // $U used by Adam Hutton, supported here for cross compatability
 
@@ -29,25 +49,6 @@ VARNAME: LETTER VARCHAR*;
 fragment LETTER: [\p{L}];
 fragment DIGIT: [\p{Nd}];
 fragment VARCHAR: LETTER | DIGIT | '_' | [\p{M}];
-
-variable: VARNAME | UNIVERSE_VAR;
-varlist: VARNAME (COMMA VARNAME)*;
-
-pattern: (variable | STRING)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
-
-equality: variable EQUALS pattern;
-atom: equality; // TODO: when regular constraints are added, they'll live here
-
-formula:
-      atom #Atomic |
-      NEGATION formula #Negation |
-      formula CONJUNCTION formula #Conjunction |
-      formula DISJUNCTION formula #Disjunction |
-      quantifier varlist COLON formula #Quantification |
-      LEFT_BRACKET formula RIGHT_BRACKET #Subformula
-      ;
-
-start: formula EOF;
 
 WS: [ \n\t\r]+ -> skip;
 
