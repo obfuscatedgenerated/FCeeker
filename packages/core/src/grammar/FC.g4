@@ -3,12 +3,12 @@ grammar FC;
 start: formula EOF;
 
 formula:
-      atom #Atomic |
-      NEGATION formula #Negation |
-      formula CONJUNCTION formula #Conjunction |
-      formula DISJUNCTION formula #Disjunction |
-      quantifier varlist COLON formula #Quantification |
-      LEFT_BRACKET formula RIGHT_BRACKET #Subformula
+      atom #Atomic
+      | NEGATION formula #Negation
+      | formula CONJUNCTION formula #Conjunction
+      | formula DISJUNCTION formula #Disjunction
+      | quantifier varlist COLON formula #Quantification
+      | LEFT_BRACKET formula RIGHT_BRACKET #Subformula
       ;
 
 quantifier: UNIVERSAL | EXISTENTIAL;
