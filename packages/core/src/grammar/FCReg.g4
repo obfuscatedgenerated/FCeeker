@@ -7,12 +7,12 @@ formula:
       | NEGATION formula #Negation
       | formula CONJUNCTION formula #Conjunction
       | formula DISJUNCTION formula #Disjunction
-      | quantifier varlist COLON formula #Quantification
+      | quantifier varList COLON formula #Quantification
       | LEFT_BRACKET formula RIGHT_BRACKET #Subformula
       ;
 
 quantifier: UNIVERSAL | EXISTENTIAL;
-varlist: VARNAME (COMMA VARNAME)*;
+varList: VARNAME (COMMA VARNAME)*;
 
 atom: wordEquation | regularConstraint;
 wordEquation: variable EQUALS pattern;
