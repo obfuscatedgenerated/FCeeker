@@ -1,0 +1,7 @@
+{
+  "name": "@fceeker/core",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
