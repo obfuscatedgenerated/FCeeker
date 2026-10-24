@@ -1,7 +1,21 @@
 import {FCRegVisitor} from "./grammar/generated/FCRegVisitor";
-import type {ASTNode, Pattern, Span, StringLiteralNode, VariableNode, WordEquationNode} from "./ast";
+import type {
+    ASTNode,
+    Pattern,
+    RegularConstraintNode,
+    Span,
+    StringLiteralNode,
+    VariableNode,
+    WordEquationNode
+} from "./ast";
 import {type ParserRuleContext, TerminalNode} from "antlr4ng";
-import {FCRegParser, type PatternContext, VariableContext, WordEquationContext} from "./grammar/generated/FCRegParser";
+import {
+    FCRegParser,
+    type PatternContext,
+    RegularConstraintContext,
+    VariableContext,
+    WordEquationContext
+} from "./grammar/generated/FCRegParser";
 
 export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     readonly #codepoint_offsets: number[];
@@ -118,6 +132,21 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             type: "WordEquation",
             variable: this.visitVariable(ctx.variable()),
             pattern: this.#read_pattern(ctx.pattern()),
+            span: this.#get_span(ctx)
+        }
+    }
+
+    #unescape_regex = (regex: string): string => {
+        return regex
+            .substring(1, regex.length - 1)
+            .replaceAll("\/", "/")
+    }
+
+    override visitRegularConstraint = (ctx: RegularConstraintContext): RegularConstraintNode => {
+        return {
+            type: "RegularConstraint",
+            variable: this.visitVariable(ctx.variable()),
+            regex: this.#unescape_regex(ctx.REGULAR_EXPRESSION().getText()),
             span: this.#get_span(ctx)
         }
     }
