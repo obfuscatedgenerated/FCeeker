@@ -1,6 +1,6 @@
 interface ASTNodeBase {
     type: string;
-    span: [number, number];
+    span: readonly [number, number];
 }
 
 export interface NamedVariableNode extends ASTNodeBase {
@@ -14,10 +14,15 @@ export interface UniverseVariableNode extends ASTNodeBase {
 
 export type VariableNode = NamedVariableNode | UniverseVariableNode;
 
+export interface StringLiteralNode extends ASTNodeBase {
+    type: "StringLiteral";
+    value: string;
+}
+
 export interface WordEquationNode extends ASTNodeBase {
     type: "WordEquation";
     variable: VariableNode;
-    pattern: readonly (VariableNode | string)[];
+    pattern: readonly (VariableNode | StringLiteralNode)[];
 }
 
 export interface RegularConstraintNode extends ASTNodeBase {
