@@ -75,3 +75,5 @@ export type FormulaNode =
     | DisjunctionNode
     | QuantificationNode
     ;
+
+export type ASTNode = FormulaNode | VariableNode | StringLiteralNode;
