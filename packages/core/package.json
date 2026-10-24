@@ -5,7 +5,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "generate": "antlr-ng -Dlanguage=TypeScript -l false -v -o src/grammar/generated src/grammar/FC.g4",
+    "generate": "antlr-ng -Dlanguage=TypeScript -l false -v -o src/grammar/generated src/grammar/FCReg.g4",
     "prepare": "pnpm run generate"
   },
   "devDependencies": {

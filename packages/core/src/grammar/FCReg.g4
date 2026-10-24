@@ -1,4 +1,4 @@
-grammar FC;
+grammar FCReg;
 
 start: formula EOF;
 
@@ -14,8 +14,9 @@ formula:
 quantifier: UNIVERSAL | EXISTENTIAL;
 varlist: VARNAME (COMMA VARNAME)*;
 
-atom: equality; // TODO: when regular constraints are added, they'll live here
+atom: equality | constraint;
 equality: variable EQUALS pattern;
+constraint: variable IN_CONSTRAINT REGULAR_EXPRESSION;
 
 pattern: (variable | STRING | EMPTY)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
 
@@ -26,6 +27,12 @@ variable: VARNAME | UNIVERSE_VAR;
 NEGATION: '¬' | '!' | 'NOT';
 CONJUNCTION: '∧' | '&&' | 'AND';
 DISJUNCTION: '∨' | '||' | 'OR';
+
+IN_CONSTRAINT: '∈' | '∈̇' | 'IN';
+
+REGULAR_EXPRESSION: '/' REGULAR_EXPRESSION_BODY '/'; // note that regexp grammar not parsed here, will be handed to chosen engine at runtime to parse
+fragment REGULAR_EXPRESSION_BODY: (~('/' | '\n' | '\r' | '\\') | REGULAR_EXPRESSION_ESCAPED)*;
+fragment REGULAR_EXPRESSION_ESCAPED: ESCAPE ~('\n' | '\r'); // regexp will allow any escaped character, but not escaping an actual newline
 
 UNIVERSAL: '∀' | 'FORALL';
 EXISTENTIAL: '∃' | 'EXISTS';
