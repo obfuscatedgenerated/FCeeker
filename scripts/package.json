@@ -1,0 +1,8 @@
+{
+  "name": "fceeker-scripts",
+  "private": true,
+  "dependencies": {
+    "@fceeker/core": "workspace:*",
+    "@types/node": "catalog:"
+  }
+}
