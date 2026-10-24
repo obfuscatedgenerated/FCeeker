@@ -14,9 +14,9 @@ formula:
 quantifier: UNIVERSAL | EXISTENTIAL;
 varlist: VARNAME (COMMA VARNAME)*;
 
-atom: equality | constraint;
-equality: variable EQUALS pattern;
-constraint: variable IN_CONSTRAINT REGULAR_EXPRESSION;
+atom: wordEquation | regularConstraint;
+wordEquation: variable EQUALS pattern;
+regularConstraint: variable IN_CONSTRAINT REGULAR_EXPRESSION;
 
 pattern: (variable | STRING | EMPTY)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
 
