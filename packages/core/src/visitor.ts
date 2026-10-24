@@ -12,7 +12,7 @@ import {type ParserRuleContext, TerminalNode} from "antlr4ng";
 import {
     AtomContext, AtomicContext, ConjunctionContext, DisjunctionContext,
     FCRegParser, FormulaContext, NegationContext,
-    type PatternContext, QuantificationContext,
+    type PatternContext, QuantificationContext, QueryContext,
     RegularConstraintContext, SubformulaContext,
     VariableContext, VarListContext,
     WordEquationContext
@@ -269,5 +269,9 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             variables: this.#read_var_list(ctx.varList()),
             span: this.#get_span(ctx)
         };
+    }
+
+    override visitQuery = (ctx: QueryContext): FormulaNode => {
+        return this.#visit_formula(ctx.formula());
     }
 }
