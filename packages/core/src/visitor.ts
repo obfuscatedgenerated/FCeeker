@@ -188,17 +188,41 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     }
 
     override visitConjunction = (ctx: ConjunctionContext): ConjunctionNode => {
+        const subformulae = ctx.formula().map(this.#visit_formula);
+        const flattened: FormulaNode[] = [];
+
+        for (const formula of subformulae) {
+            if (formula.type === "Conjunction") {
+                // flatten conjunctions on each recursion so it becomes a single n-ary conjunction
+                flattened.push(...formula.formulae);
+            } else {
+                flattened.push(formula);
+            }
+        }
+
         return {
             type: "Conjunction",
-            formulae: ctx.formula().map(this.#visit_formula),
+            formulae: flattened,
             span: this.#get_span(ctx)
         };
     }
 
     override visitDisjunction = (ctx: DisjunctionContext): DisjunctionNode => {
+        const subformulae = ctx.formula().map(this.#visit_formula);
+        const flattened: FormulaNode[] = [];
+
+        for (const formula of subformulae) {
+            if (formula.type === "Disjunction") {
+                // flatten disjunctions on each recursion so it becomes a single n-ary disjunction
+                flattened.push(...formula.formulae);
+            } else {
+                flattened.push(formula);
+            }
+        }
+
         return {
             type: "Disjunction",
-            formulae: ctx.formula().map(this.#visit_formula),
+            formulae: flattened,
             span: this.#get_span(ctx)
         };
     }
