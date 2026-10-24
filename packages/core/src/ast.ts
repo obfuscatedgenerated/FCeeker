@@ -1,6 +1,12 @@
+// a span should be counted as character offsets, not codepoints
+export interface Span {
+    start: number; // inclusive
+    end: number; // exclusive
+}
+
 interface ASTNodeBase {
     type: string;
-    span: readonly [number, number];
+    span: Span;
 }
 
 export interface NamedVariableNode extends ASTNodeBase {
