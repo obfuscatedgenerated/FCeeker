@@ -33,7 +33,7 @@ fragment VARCHAR: LETTER | DIGIT | '_' | [\p{M}];
 variable: VARNAME | UNIVERSE_VAR;
 varlist: VARNAME (COMMA VARNAME)*;
 
-pattern: (VARNAME | STRING)+;
+pattern: (variable | STRING)+; // universe is actually allowed in the right hand side, but is rarely useful (TODO add a warning when impl runtime)
 
 equality: variable EQUALS pattern;
 atom: equality; // TODO: when regular constraints are added, they'll live here
