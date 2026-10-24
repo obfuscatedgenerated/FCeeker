@@ -1,6 +1,6 @@
 grammar FCReg;
 
-start: formula EOF;
+query: formula EOF;
 
 formula:
       atom #Atomic
