@@ -3,8 +3,7 @@ import type {
     ASTNode, AtomNode, ConjunctionNode, DisjunctionNode, FormulaNode, NamedVariableNode, NegationNode,
     Pattern, QuantificationNode,
     RegularConstraintNode,
-    Span,
-    StringLiteralNode,
+    Span, StringLiteralNode,
     VariableNode,
     WordEquationNode
 } from "./ast";
@@ -110,13 +109,13 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
                         type: "StringLiteral",
                         value: "",
                         span: this.#get_span(child)
-                    });
+                    } satisfies StringLiteralNode);
                 } else if (child.symbol.type === FCRegParser.STRING) {
                     pattern.push({
                         type: "StringLiteral",
                         value: this.#unescape_string(child.getText()),
                         span: this.#get_span(child)
-                    });
+                    } satisfies StringLiteralNode);
                 } else {
                     throw new Error(`Unexpected terminal of type ${FCRegParser.symbolicNames[child.symbol.type]} passed to pattern`);
                 }
@@ -140,7 +139,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     #unescape_regex = (regex: string): string => {
         return regex
             .substring(1, regex.length - 1)
-            .replaceAll("\/", "/");
+            .replaceAll("\\/", "/");
     }
 
     override visitRegularConstraint = (ctx: RegularConstraintContext): RegularConstraintNode => {
@@ -244,7 +243,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             } else if (child.symbol.type === FCRegParser.COMMA) {
                 // silently skip
             } else {
-                throw new Error(`Unexpected terminal of type ${FCRegParser.symbolicNames[child.symbol.type]} passed to pattern`);
+                throw new Error(`Unexpected terminal of type ${FCRegParser.symbolicNames[child.symbol.type]} passed to var list`);
             }
         }
 
