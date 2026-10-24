@@ -1,6 +1,6 @@
 import {FCRegVisitor} from "./grammar/generated/FCRegVisitor";
 import type {
-    ASTNode,
+    ASTNode, AtomNode, FormulaNode,
     Pattern,
     RegularConstraintNode,
     Span,
@@ -10,9 +10,10 @@ import type {
 } from "./ast";
 import {type ParserRuleContext, TerminalNode} from "antlr4ng";
 import {
-    FCRegParser,
+    AtomContext, AtomicContext,
+    FCRegParser, FormulaContext,
     type PatternContext,
-    RegularConstraintContext,
+    RegularConstraintContext, SubformulaContext,
     VariableContext,
     WordEquationContext
 } from "./grammar/generated/FCRegParser";
@@ -149,5 +150,32 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
             regex: this.#unescape_regex(ctx.REGULAR_EXPRESSION().getText()),
             span: this.#get_span(ctx)
         }
+    }
+
+    override visitAtom = (ctx: AtomContext): AtomNode => {
+        if (ctx.wordEquation()) {
+            return this.visitWordEquation(ctx.wordEquation()!);
+        } else if (ctx.regularConstraint()) {
+            return this.visitRegularConstraint(ctx.regularConstraint()!);
+        } else {
+            throw new Error("Unrecognised atom");
+        }
+    }
+
+    override visitAtomic = (ctx: AtomicContext): AtomNode => {
+        return this.visitAtom(ctx.atom());
+    }
+
+    #visit_formula = (ctx: FormulaContext): FormulaNode => {
+        const result = this.visit(ctx);
+        if (!result) {
+            throw new Error("No formula");
+        }
+
+        return result as FormulaNode;
+    }
+
+    override visitSubformula = (ctx: SubformulaContext): FormulaNode => {
+        return this.#visit_formula(ctx.formula());
     }
 }
