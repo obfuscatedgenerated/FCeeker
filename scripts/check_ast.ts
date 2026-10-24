@@ -1,14 +1,21 @@
 import {parse} from "@fceeker/core";
-import * as console from "node:console";
-import * as process from "node:process";
 
-const input = process.argv.slice(2).join(" ");
-if (!input) {
-    console.error("No input!");
+import * as fs from "fs";
+
+const input_path = process.argv[2];
+
+if (!input_path) {
+    console.error("No input path!");
     process.exit(1);
 }
 
-const result = parse(input);
+let contents = fs.readFileSync(input_path, {encoding: "utf-8"});
+if (contents[0] === "\uFEFF") {
+    // strip leading bom
+    contents = contents.slice(1);
+}
+
+const result = parse(contents);
 
 if (!result.success) {
     for (const error of result.errors) {
