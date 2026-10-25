@@ -37,7 +37,7 @@ fragment REGULAR_EXPRESSION_ESCAPED: ESCAPE ~('\n' | '\r'); // regexp will allow
 UNIVERSAL: '∀' | 'FORALL';
 EXISTENTIAL: '∃' | 'EXISTS';
 
-UNIVERSE_VAR: '𝔲' | 'UNIV' | '$U'; // $U used by Adam Hutton, supported here for cross compatability
+UNIVERSE_VAR: '𝔲' | 'UNIV' | 'INPUT' | '$U'; // $U used by Adam Hutton, supported here for cross compatability
 
 EQUALS: '≐' | '=';
 
