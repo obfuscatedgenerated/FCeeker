@@ -39,7 +39,11 @@ const free_vars = collect_free_variables(parsed.ast);
 if (free_vars.size === 0) {
     console.log("(no free variables)");
 
-    const result = satisfies(parsed.ast, input_word, new Map(), true);
+    const result = satisfies(parsed.ast, {
+        word: input_word,
+        assignments: new Map(),
+        skip_factor_check: true
+    });
     console.log(result);
 
     process.exit(0);
@@ -72,7 +76,11 @@ const ask_for_assignments = async () => {
 }
 
 ask_for_assignments().then((assignments) => {
-    const result = satisfies(parsed.ast, input_word, assignments, true);
+    const result = satisfies(parsed.ast, {
+        word: input_word,
+        assignments,
+        skip_factor_check: true
+    });
     console.log(result);
 
     process.exit(0);
