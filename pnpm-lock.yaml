@@ -21,8 +21,13 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
+  packages/ast: {}
+
   packages/core:
     dependencies:
+      '@fceeker/ast':
+        specifier: workspace:*
+        version: link:../ast
       antlr4ng:
         specifier: ^3.0.16
         version: 3.0.16

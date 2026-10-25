@@ -12,6 +12,7 @@
     "antlr-ng": "^1.0.10"
   },
   "dependencies": {
+    "@fceeker/ast": "workspace:*",
     "antlr4ng": "^3.0.16"
   }
 }

@@ -1,12 +1,7 @@
 import {FCRegVisitor} from "./grammar/generated/FCRegVisitor";
 import type {
-    ASTNode, AtomNode, ConjunctionNode, DisjunctionNode, FormulaNode, NamedVariableNode, NegationNode,
-    Pattern, QuantificationNode,
-    RegularConstraintNode,
-    Span, StringLiteralNode,
-    VariableNode,
-    WordEquationNode
-} from "./ast";
+    Span
+} from "@fceeker/ast";
 import {type ParserRuleContext, TerminalNode} from "antlr4ng";
 import type {
     AtomContext, AtomicContext, ConjunctionContext, DisjunctionContext,
@@ -17,6 +12,11 @@ import type {
     WordEquationContext
 } from "./grammar/generated/FCRegParser";
 import {FCRegParser, VariableContext} from "./grammar/generated/FCRegParser";
+import type {
+    ASTNode, AtomNode, ConjunctionNode, DisjunctionNode,
+    FormulaNode, NamedVariableNode, NegationNode, Pattern, QuantificationNode,
+    RegularConstraintNode, StringLiteralNode, VariableNode, WordEquationNode
+} from "@fceeker/ast";
 
 export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     readonly #codepoint_offsets: number[];

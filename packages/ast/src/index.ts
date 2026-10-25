@@ -80,7 +80,6 @@ export type FormulaNode =
 
 export type ASTNode = FormulaNode | VariableNode | StringLiteralNode;
 
-
 // returns all direct child nodes of an ast node
 export const get_children = (node: ASTNode): readonly ASTNode[] => {
     switch (node.type) {
@@ -105,7 +104,6 @@ export const get_children = (node: ASTNode): readonly ASTNode[] => {
             throw new Error(`Unexpected node type ${node.type}`);
     }
 }
-
 // preorder traversal, with a callback that can optionally return true to stop the walk
 // returns whether it stopped (so it can bubble up the recursive stack)
 export const walk_ast = (root: ASTNode, callback: (node: ASTNode) => void | boolean): boolean => {
@@ -124,7 +122,6 @@ export const walk_ast = (root: ASTNode, callback: (node: ASTNode) => void | bool
 
     return false;
 }
-
 export const find_first_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): ASTNode | null => {
     let found: ASTNode | null = null;
     walk_ast(root, (node) => {
@@ -139,7 +136,6 @@ export const find_first_in_ast = (root: ASTNode, predicate: (node: ASTNode) => b
 
     return found;
 }
-
 export const find_all_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): ASTNode[] => {
     const found: ASTNode[] = [];
     walk_ast(root, (node) => {
@@ -151,7 +147,6 @@ export const find_all_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boo
 
     return found;
 }
-
 export const every_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): boolean => {
     let output = true;
     walk_ast(root, (node) => {
@@ -166,7 +161,6 @@ export const every_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolea
 
     return output;
 }
-
 export const some_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): boolean => {
     return !!find_first_in_ast(root, predicate);
 }

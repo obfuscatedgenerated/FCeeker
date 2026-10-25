@@ -1,4 +1,4 @@
-import {type ASTNode, get_children} from "./ast";
+import {type ASTNode, get_children} from "@fceeker/ast";
 
 export const collect_free_variables = (node: ASTNode, free = new Set<string>()): Set<string> => {
     switch (node.type) {

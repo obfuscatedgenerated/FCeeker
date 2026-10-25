@@ -1,4 +1,4 @@
-import type {FormulaNode, Span} from "./ast";
+import type {Span} from "@fceeker/ast";
 import {
     ATNSimulator,
     BaseErrorListener,
@@ -8,6 +8,7 @@ import {
 import {FCRegLexer} from "./grammar/generated/FCRegLexer";
 import {FCRegParser} from "./grammar/generated/FCRegParser";
 import {FCRegToASTVisitor} from "./visitor";
+import type {FormulaNode} from "@fceeker/ast";
 
 export interface ParseError {
     message: string;
