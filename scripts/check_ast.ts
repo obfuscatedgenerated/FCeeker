@@ -1,7 +1,7 @@
 import parse from "@fceeker/parser-antlr";
 import {collect_free_variables} from "@fceeker/core";
 
-import * as fs from "fs";
+import * as fs from "node:fs";
 import * as console from "node:console";
 
 const input_path = process.argv[2];

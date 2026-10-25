@@ -2,7 +2,8 @@
   "name": "fceeker",
   "version": "0.0.0",
   "scripts": {
-    "check-ast": "tsx scripts/check_ast.ts"
+    "check-ast": "tsx scripts/check_ast.ts",
+    "check-assignment": "tsx scripts/check_assignment.ts"
   },
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
