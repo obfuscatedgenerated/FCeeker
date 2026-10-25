@@ -1,4 +1,4 @@
-import type {FormulaNode, Pattern} from "@fceeker/ast";
+import {type FormulaNode, get_children, type Pattern} from "@fceeker/ast";
 import {collect_free_variables} from "../variables";
 import {word_equation_satisfies} from "./word_equation";
 
@@ -29,12 +29,34 @@ export interface EvaluationContext {
     skip_factor_check?: boolean;
 }
 
-export const satisfies = (formula: FormulaNode, ctx: EvaluationContext): boolean => {
-    if (formula.type !== "WordEquation") {
-        throw new Error(`Only word equation atoms are supported so far. Got: ${formula.type}`);
-    }
+// checks if a formula is satisifed under the given assignments via post-order recursion
+export const satisfies = (root_formula: FormulaNode, ctx: EvaluationContext): boolean => {
+    switch (root_formula.type) {
+        case "WordEquation":
+            return word_equation_satisfies(root_formula, ctx);
+        case "Negation":
+            return !satisfies(root_formula.formula, ctx);
+        case "Disjunction":
+            // lazily evaluate in order, stopping at the first truth (short-circuiting)
+            for (const formula of root_formula.formulae) {
+                if (satisfies(formula, ctx)) {
+                    return true;
+                }
+            }
 
-    return word_equation_satisfies(formula, ctx);
+            return false;
+        case "Conjunction":
+            // lazily evaluate in order, stopping at the first false (short-circuiting)
+            for (const formula of root_formula.formulae) {
+                if (!satisfies(formula, ctx)) {
+                    return false;
+                }
+            }
+
+            return true;
+        default:
+            throw new Error(`${root_formula.type} formulae not yet supported`);
+    }
 }
 
 export const check_factors = (word: string, assignments: ReadonlyMap<string, string>) => {
