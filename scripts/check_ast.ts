@@ -1,6 +1,7 @@
-import {parse} from "@fceeker/core";
+import {parse, collect_free_variables} from "@fceeker/core";
 
 import * as fs from "fs";
+import * as console from "node:console";
 
 const input_path = process.argv[2];
 
@@ -25,3 +26,12 @@ if (!result.success) {
 }
 
 console.dir(result.ast, { depth: null });
+
+const free_vars = collect_free_variables(result.ast);
+
+if (free_vars.size === 0) {
+    console.log("No free variables.");
+} else {
+    console.log("Free variables:");
+    free_vars.forEach((var_name) => console.log(`- ${var_name}`));
+}
