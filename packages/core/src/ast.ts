@@ -106,12 +106,67 @@ export const get_children = (node: ASTNode): readonly ASTNode[] => {
     }
 }
 
-// preorder traversal
-export const walk_ast = (root: ASTNode, callback: (node: ASTNode) => void): void => {
-    callback(root);
+// preorder traversal, with a callback that can optionally return true to stop the walk
+// returns whether it stopped (so it can bubble up the recursive stack)
+export const walk_ast = (root: ASTNode, callback: (node: ASTNode) => void | boolean): boolean => {
+    const stop = callback(root);
+    if (stop) {
+        return true;
+    }
 
     const children = get_children(root);
     for (const child of children) {
-        walk_ast(child, callback);
+        const stopped = walk_ast(child, callback);
+        if (stopped) {
+            return true;
+        }
     }
+
+    return false;
+}
+
+export const find_first_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): ASTNode | null => {
+    let found: ASTNode | null = null;
+    walk_ast(root, (node) => {
+        const result = predicate(node);
+        if (result) {
+            found = node;
+
+            // stop walk
+            return true;
+        }
+    });
+
+    return found;
+}
+
+export const find_all_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): ASTNode[] => {
+    const found: ASTNode[] = [];
+    walk_ast(root, (node) => {
+        const result = predicate(node);
+        if (result) {
+            found.push(node);
+        }
+    });
+
+    return found;
+}
+
+export const every_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): boolean => {
+    let output = true;
+    walk_ast(root, (node) => {
+        const result = predicate(node);
+        if (!result) {
+            output = false;
+
+            // stop walk
+            return true;
+        }
+    });
+
+    return output;
+}
+
+export const some_in_ast = (root: ASTNode, predicate: (node: ASTNode) => boolean): boolean => {
+    return !!find_first_in_ast(root, predicate);
 }
