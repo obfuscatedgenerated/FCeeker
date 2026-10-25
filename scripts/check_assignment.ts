@@ -37,7 +37,11 @@ if (!parsed.success) {
 const free_vars = collect_free_variables(parsed.ast);
 
 if (free_vars.size === 0) {
-    console.log("No free variables.");
+    console.log("(no free variables)");
+
+    const result = satisfies(parsed.ast, input_word, new Map(), true);
+    console.log(result);
+
     process.exit(0);
 }
 
