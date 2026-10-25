@@ -22,7 +22,7 @@ export interface QueryResultError extends QueryResultBase {
 
 export type QueryResult = QueryResultBoolean | QueryResultFactors | QueryResultError;
 
-export const compute_pattern = (pattern: Readonly<Pattern>, assignments: ReadonlyMap<string, string>, word: string): string => {
+export const compute_pattern = (pattern: Readonly<Pattern>, assignments: ReadonlyMap<string, string>, word: string, skip_factor_check = false): string => {
     let output = "";
 
     for (const fragment of pattern) {
@@ -36,7 +36,7 @@ export const compute_pattern = (pattern: Readonly<Pattern>, assignments: Readonl
             case "NamedVariable": {
                 const frag_val = assignments.get(fragment.name);
                 if (frag_val !== undefined) {
-                    if (!word.includes(frag_val)) {
+                    if (!skip_factor_check && !word.includes(frag_val)) {
                         throw new Error(`${frag_val} is not a factor of ${word}`);
                     }
 
@@ -52,7 +52,7 @@ export const compute_pattern = (pattern: Readonly<Pattern>, assignments: Readonl
     return output;
 }
 
-export const satisfies = (formula: FormulaNode, word: string, assignments: ReadonlyMap<string, string>): boolean => {
+export const satisfies = (formula: FormulaNode, word: string, assignments: ReadonlyMap<string, string>, skip_factor_check = false): boolean => {
     if (formula.type !== "WordEquation") {
         throw new Error(`Only word equation atoms are supported so far. Got: ${formula.type}`);
     }
@@ -64,16 +64,24 @@ export const satisfies = (formula: FormulaNode, word: string, assignments: Reado
     } else if (assignments.has(formula.variable.name)) {
         lhs_value = assignments.get(formula.variable.name)!;
 
-        if (!word.includes(lhs_value)) {
+        if (!skip_factor_check && !word.includes(lhs_value)) {
             throw new Error(`${lhs_value} is not a factor of ${word}`);
         }
     } else {
         throw new Error(`Unbound variable ${formula.variable.name}`);
     }
 
-    const rhs_value = compute_pattern(formula.pattern, assignments, word);
+    const rhs_value = compute_pattern(formula.pattern, assignments, word, skip_factor_check);
 
     return (lhs_value === rhs_value);
+}
+
+export const check_factors = (word: string, assignments: ReadonlyMap<string, string>) => {
+    for (const val of assignments.values()) {
+        if (!word.includes(val)) {
+            throw new Error(`${val} is not a factor of ${word}`);
+        }
+    }
 }
 
 export const execute = (formula: FormulaNode, word: string): QueryResult => {
