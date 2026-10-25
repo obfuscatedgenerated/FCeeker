@@ -28,6 +28,15 @@ importers:
       '@fceeker/ast':
         specifier: workspace:*
         version: link:../ast
+
+  packages/parser-antlr:
+    dependencies:
+      '@fceeker/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@fceeker/core':
+        specifier: workspace:*
+        version: link:../core
       antlr4ng:
         specifier: ^3.0.16
         version: 3.0.16
@@ -41,6 +50,9 @@ importers:
       '@fceeker/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@fceeker/parser-antlr':
+        specifier: workspace:*
+        version: link:../packages/parser-antlr
       '@types/node':
         specifier: 'catalog:'
         version: 22.18.0

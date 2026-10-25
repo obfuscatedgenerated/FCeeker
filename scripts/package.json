@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@fceeker/core": "workspace:*",
+    "@fceeker/parser-antlr": "workspace:*",
     "@types/node": "catalog:"
   }
 }

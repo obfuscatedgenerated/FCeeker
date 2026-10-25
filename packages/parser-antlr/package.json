@@ -1,0 +1,19 @@
+{
+  "name": "@fceeker/parser-antlr",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "antlr-ng -Dlanguage=TypeScript -l false -v -o src/grammar/generated src/grammar/FCReg.g4",
+    "prepare": "pnpm run generate"
+  },
+  "devDependencies": {
+    "antlr-ng": "^1.0.10"
+  },
+  "dependencies": {
+    "@fceeker/core": "workspace:*",
+    "@fceeker/ast": "workspace:*",
+    "antlr4ng": "^3.0.16"
+  }
+}

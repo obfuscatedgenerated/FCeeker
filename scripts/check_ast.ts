@@ -1,4 +1,5 @@
-import {parse, collect_free_variables} from "@fceeker/core";
+import parse from "@fceeker/parser-antlr";
+import {collect_free_variables} from "@fceeker/core";
 
 import * as fs from "fs";
 import * as console from "node:console";
