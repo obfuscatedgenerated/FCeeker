@@ -79,3 +79,39 @@ export type FormulaNode =
     ;
 
 export type ASTNode = FormulaNode | VariableNode | StringLiteralNode;
+
+
+// returns all direct child nodes of an ast node
+export const get_children = (node: ASTNode): readonly ASTNode[] => {
+    switch (node.type) {
+        case "NamedVariable":
+        case "UniverseVariable":
+        case "StringLiteral":
+            return [];
+        case "WordEquation":
+            return [node.variable, ...node.pattern]
+        case "RegularConstraint":
+            return [node.variable];
+        case "Negation":
+            return [node.formula];
+        case "Disjunction":
+        case "Conjunction":
+            return node.formulae;
+        case "ExistentialQuantification":
+        case "UniversalQuantification":
+            return [...node.variables, node.formula];
+        default:
+            //@ts-ignore
+            throw new Error(`Unexpected node type ${node.type}`);
+    }
+}
+
+// preorder traversal
+export const walk_ast = (root: ASTNode, callback: (node: ASTNode) => void): void => {
+    callback(root);
+
+    const children = get_children(root);
+    for (const child of children) {
+        walk_ast(child, callback);
+    }
+}
