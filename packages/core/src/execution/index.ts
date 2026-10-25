@@ -1,4 +1,4 @@
-import type {FormulaNode} from "@fceeker/ast";
+import type {FormulaNode, Pattern} from "@fceeker/ast";
 import {collect_free_variables} from "../variables";
 
 interface QueryResultBase {
@@ -12,7 +12,7 @@ export interface QueryResultBoolean extends QueryResultBase {
 
 export interface QueryResultFactors extends QueryResultBase {
     type: "factors";
-    result: Map<string, string>;
+    result: ReadonlyMap<string, string>;
 }
 
 export interface QueryResultError extends QueryResultBase {
@@ -22,7 +22,61 @@ export interface QueryResultError extends QueryResultBase {
 
 export type QueryResult = QueryResultBoolean | QueryResultFactors | QueryResultError;
 
-export const execute = (formula: FormulaNode): QueryResult => {
+export const compute_pattern = (pattern: Readonly<Pattern>, assignments: ReadonlyMap<string, string>, word: string): string => {
+    let output = "";
+
+    for (const fragment of pattern) {
+        switch (fragment.type) {
+            case "StringLiteral":
+                output += fragment.value;
+                break;
+            case "UniverseVariable":
+                output += word;
+                break;
+            case "NamedVariable": {
+                const frag_val = assignments.get(fragment.name);
+                if (frag_val !== undefined) {
+                    if (!word.includes(frag_val)) {
+                        throw new Error(`${frag_val} is not a factor of ${word}`);
+                    }
+
+                    output += frag_val;
+                } else {
+                    throw new Error(`Unbound variable ${fragment.name}`);
+                }
+            }
+                break
+        }
+    }
+
+    return output;
+}
+
+export const satisfies = (formula: FormulaNode, word: string, assignments: ReadonlyMap<string, string>): boolean => {
+    if (formula.type !== "WordEquation") {
+        throw new Error(`Only word equation atoms are supported so far. Got: ${formula.type}`);
+    }
+
+    let lhs_value: string;
+    if (formula.variable.type === "UniverseVariable") {
+        // the universe is the input word
+        lhs_value = word;
+    } else if (assignments.has(formula.variable.name)) {
+        lhs_value = assignments.get(formula.variable.name)!;
+
+        if (!word.includes(lhs_value)) {
+            throw new Error(`${lhs_value} is not a factor of ${word}`);
+        }
+    } else {
+        throw new Error(`Unbound variable ${formula.variable.name}`);
+    }
+
+    const rhs_value = compute_pattern(formula.pattern, assignments, word);
+
+    return (lhs_value === rhs_value);
+}
+
+export const execute = (formula: FormulaNode, word: string): QueryResult => {
     const base_result: QueryResultBase = {
         warnings: []
     };
@@ -40,7 +94,7 @@ export const execute = (formula: FormulaNode): QueryResult => {
         };
     }
 
-    // TODO
+    // TODO: enumerate factors and check satisfies
 
     return {
         ...base_result,
