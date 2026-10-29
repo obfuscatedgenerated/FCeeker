@@ -2,12 +2,30 @@ export const factors = (word: string) => {
     const factor_set = new Set<string>([""]);
 
     // sliding window
-    for (let window_size = 0; window_size < word.length; window_size++) {
-        for (let window_start = 0; window_start < word.length - window_size; window_start++) {
+    for (let window_size = 1; window_size <= word.length; window_size++) {
+        for (let window_start = 0; window_start <= word.length - window_size; window_start++) {
             const factor = word.substring(window_start, window_start + window_size);
             factor_set.add(factor);
         }
     }
 
     return factor_set;
+}
+
+export const assignments = function* (variables: string[], factors: string[], base: ReadonlyMap<string, string> = new Map<string, string>()): Generator<ReadonlyMap<string, string>> {
+    // there will be F^k "rows" to assign
+    for (let idx = 0; idx < factors.length ** variables.length; idx++) {
+        const assignment = new Map<string, string>(base);
+
+        for (let variable_idx = 0; variable_idx < variables.length; variable_idx++) {
+            const var_name = variables[variable_idx]!;
+
+            // use place value on the row index in base F, the value at this variable's place is its factor index
+            const factor_idx = Math.floor(idx / (factors.length ** variable_idx)) % factors.length;
+
+            assignment.set(var_name, factors[factor_idx]!);
+        }
+
+        yield assignment;
+    }
 }
