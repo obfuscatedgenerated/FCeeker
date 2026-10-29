@@ -1,10 +1,13 @@
 export const factors = (word: string) => {
     const factor_set = new Set<string>([""]);
 
+    // iterate in codepoints, not chars (otherwise 2-wide unicode gets split up)
+    const word_codepoints = Array.from(word);
+
     // sliding window
-    for (let window_size = 1; window_size <= word.length; window_size++) {
-        for (let window_start = 0; window_start <= word.length - window_size; window_start++) {
-            const factor = word.substring(window_start, window_start + window_size);
+    for (let window_size = 1; window_size <= word_codepoints.length; window_size++) {
+        for (let window_start = 0; window_start <= word_codepoints.length - window_size; window_start++) {
+            const factor = word_codepoints.slice(window_start, window_start + window_size).join("");
             factor_set.add(factor);
         }
     }
