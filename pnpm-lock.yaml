@@ -56,6 +56,13 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.18.0
+      progress:
+        specifier: ^2.0.3
+        version: 2.0.3
+    devDependencies:
+      '@types/progress':
+        specifier: ^2.0.7
+        version: 2.0.7
 
 packages:
 
@@ -217,6 +224,9 @@ packages:
 
   '@types/node@22.18.0':
     resolution: {integrity: sha512-m5ObIqwsUp6BZzyiy4RdZpzWGub9bqLJMvZDD0QMXhxjqMHMENlj+SqF5QxoUwaQNFe+8kz8XM8ZQhqkQPTgMQ==}
+
+  '@types/progress@2.0.7':
+    resolution: {integrity: sha512-iadjw02vte8qWx7U0YM++EybBha2CQLPGu9iJ97whVgJUT5Zq9MjAPYUnbfRI2Kpehimf1QjFJYxD0t8nqzu5w==}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
@@ -380,6 +390,10 @@ packages:
   pako@0.2.9:
     resolution: {integrity: sha512-NUcwaKxUxWrZLpDG+z/xZaCgQITkA/Dv4V/T6bw7VON6l1Xz/VnrBqrYjZQ12TamKHzITTfOEIYUj48y2KXImA==}
 
+  progress@2.0.3:
+    resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
+    engines: {node: '>=0.4.0'}
+
   stringtemplate4ts@1.0.9:
     resolution: {integrity: sha512-KYZm2bJlSjynG5Y+L46fkaKBQG6mhV6hb2RBA8dpx3/Vj6G4u7gwXNKYvaN9+QD5sj68/1srtSNDvqEso7MwsQ==}
 
@@ -488,6 +502,10 @@ snapshots:
   '@types/node@22.18.0':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/progress@2.0.7':
+    dependencies:
+      '@types/node': 22.18.0
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
@@ -603,6 +621,8 @@ snapshots:
   luxon@3.5.0: {}
 
   pako@0.2.9: {}
+
+  progress@2.0.3: {}
 
   stringtemplate4ts@1.0.9:
     dependencies:

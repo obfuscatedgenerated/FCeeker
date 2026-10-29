@@ -1,10 +1,11 @@
 import parse from "@fceeker/parser-antlr";
-import {collect_free_variables, execute, factorise, generate_assignments, satisfies} from "@fceeker/core";
+import {execute} from "@fceeker/core";
 
 import * as fs from "node:fs";
 import * as console from "node:console";
-import * as readline from "node:readline/promises";
 import * as process from "node:process";
+
+import ProgressBar from "progress";
 
 const input_path = process.argv[2];
 
@@ -35,10 +36,13 @@ if (!parsed.success) {
     process.exit(1);
 }
 
+let bar: ProgressBar | null = null;
+const output = execute(parsed.ast, input_word, {
+    progress_start: (total) => bar = new ProgressBar("Working: [:bar] :current/:total assignments (:percent)", {total}),
+    progress_tick: (count) => bar && bar.tick(count)
+});
 
-console.log("Working...");
-
-const output = execute(parsed.ast, input_word);
+console.log("\n");
 
 for (const warning of output.warnings) {
     console.warn(warning);

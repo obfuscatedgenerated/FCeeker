@@ -68,14 +68,24 @@ export const check_factors = (word: string, assignments: ReadonlyMap<string, str
     }
 }
 
-export const execute = (formula: FormulaNode, word: string): QueryResult => {
+interface ExecuteOpts {
+    progress_start?: (total: number) => void;
+    progress_tick?: (count?: number) => void;
+    // TODO: should warn move here as a callback? should there be a callback to get results as they come in?
+}
+
+export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = {}): QueryResult => {
     const base_result: QueryResultBase = {
         warnings: []
     };
 
     const free_vars = collect_free_variables(formula);
-
     const factors = factorise(word);
+
+    if (opts.progress_start) {
+        opts.progress_start(factors.length ** free_vars.size);
+    }
+
     const assignment_gen = generate_assignments(Array.from(free_vars), factors);
 
     const output = new Set<ReadonlyMap<string, string>>();
@@ -89,6 +99,10 @@ export const execute = (formula: FormulaNode, word: string): QueryResult => {
 
         if (result) {
             output.add(assignments);
+        }
+
+        if (opts.progress_tick) {
+            opts.progress_tick();
         }
     }
 
