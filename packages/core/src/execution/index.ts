@@ -86,6 +86,7 @@ export const execute = (formula: FormulaNode, word: string): QueryResult => {
     }
 
     // TODO: enumerate factors and check satisfies
+    // TODO: move logic written into solve script here (oops)
 
     return {
         ...base_result,
