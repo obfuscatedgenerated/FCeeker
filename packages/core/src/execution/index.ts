@@ -1,6 +1,7 @@
 import {type FormulaNode, get_children, type Pattern} from "@fceeker/ast";
 import {collect_free_variables} from "../variables";
 import {word_equation_satisfies} from "./word_equation";
+import {factorise, generate_assignments} from "../factors";
 
 interface QueryResultBase {
     warnings: string[];
@@ -13,7 +14,7 @@ export interface QueryResultBoolean extends QueryResultBase {
 
 export interface QueryResultFactors extends QueryResultBase {
     type: "factors";
-    result: ReadonlyMap<string, string>;
+    result: Set<ReadonlyMap<string, string>>;
 }
 
 export interface QueryResultError extends QueryResultBase {
@@ -73,24 +74,29 @@ export const execute = (formula: FormulaNode, word: string): QueryResult => {
     };
 
     const free_vars = collect_free_variables(formula);
-    if (free_vars.size !== 0) {
-        base_result.warnings.push(`Queries with free variables will not yet return their factors. Free variables: ${Array.from(free_vars.values()).join(", ")}`);
+
+    const factors = factorise(word);
+    const assignment_gen = generate_assignments(Array.from(free_vars), factors);
+
+    const output = new Set<ReadonlyMap<string, string>>();
+
+    for (const assignments of assignment_gen) {
+        const result = satisfies(formula, {
+            word,
+            assignments,
+            skip_factor_check: true
+        });
+
+        if (result) {
+            output.add(assignments);
+        }
     }
 
-    if (formula.type !== "WordEquation") {
-        return {
-            ...base_result,
-            type: "error",
-            message: `Only word equation atoms are supported so far. Got: ${formula.type}`,
-        };
-    }
-
-    // TODO: enumerate factors and check satisfies
-    // TODO: move logic written into solve script here (oops)
+    // TODO: will need to evaluate assignments for quantifiers once implemented
 
     return {
         ...base_result,
-        type: "error",
-        message: "Execution unimplemented"
+        type: "factors",
+        result: output
     };
 }

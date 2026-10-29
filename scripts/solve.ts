@@ -1,9 +1,10 @@
 import parse from "@fceeker/parser-antlr";
-import {collect_free_variables, factorise, generate_assignments, satisfies} from "@fceeker/core";
+import {collect_free_variables, execute, factorise, generate_assignments, satisfies} from "@fceeker/core";
 
 import * as fs from "node:fs";
 import * as console from "node:console";
 import * as readline from "node:readline/promises";
+import * as process from "node:process";
 
 const input_path = process.argv[2];
 
@@ -34,25 +35,34 @@ if (!parsed.success) {
     process.exit(1);
 }
 
-// TODO: will need to evaluate assignments for quantifiers once implemented
 
-const free_vars = collect_free_variables(parsed.ast);
+console.log("Working...");
 
-const factors = factorise(input_word);
-const assignment_gen = generate_assignments(Array.from(free_vars), factors);
+const output = execute(parsed.ast, input_word);
 
-let satisfy_count = 0;
-for (const assignments of assignment_gen) {
-    const result = satisfies(parsed.ast, {
-        word: input_word,
-        assignments,
-        skip_factor_check: true
-    });
-
-    if (result) {
-        console.log(assignments);
-        satisfy_count++;
-    }
+for (const warning of output.warnings) {
+    console.warn(warning);
 }
 
-console.log(`Finished with ${satisfy_count} satisfying assignment${satisfy_count === 1 ? "" : "s"}`);
+if (output.type === "error") {
+    console.error(output.message);
+    process.exit(1);
+} else if (output.type === "boolean") {
+    console.log(output.result);
+} else {
+    const satisfy_count = output.result.size;
+
+    if (satisfy_count === 0) {
+        console.log("No satisfying assignments");
+        process.exit(0);
+    }
+
+    console.log(`Finished with ${satisfy_count} satisfying assignment${satisfy_count === 1 ? "" : "s"}:`);
+
+    const result_objs = [] as Record<string, string>[];
+    for (const assignment of output.result) {
+        result_objs.push(Object.fromEntries(assignment.entries()));
+    }
+
+    console.table(result_objs);
+}
