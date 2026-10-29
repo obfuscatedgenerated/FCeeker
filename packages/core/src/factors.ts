@@ -17,7 +17,8 @@ export const factors = (word: string) => {
 
 export const assignments = function* (variables: string[], factors: string[], base: ReadonlyMap<string, string> = new Map<string, string>()): Generator<ReadonlyMap<string, string>> {
     // there will be F^k "rows" to assign
-    for (let idx = 0; idx < factors.length ** variables.length; idx++) {
+    const factor_count = factors.length ** variables.length
+    for (let idx = 0; idx < factor_count; idx++) {
         const assignment = new Map<string, string>(base);
 
         for (let variable_idx = 0; variable_idx < variables.length; variable_idx++) {
