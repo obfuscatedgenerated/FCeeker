@@ -1,4 +1,4 @@
-export const factors = (word: string) => {
+export const factorise = (word: string) => {
     const factor_set = new Set<string>([""]);
 
     // iterate in codepoints, not chars (otherwise 2-wide unicode gets split up)
@@ -12,14 +12,14 @@ export const factors = (word: string) => {
         }
     }
 
-    return factor_set;
+    return Array.from(factor_set);
 }
 
-export const assignments = function* (variables: string[], factors: string[], base: ReadonlyMap<string, string> = new Map<string, string>()): Generator<ReadonlyMap<string, string>> {
+export const generate_assignments = function* (variables: string[], factors: string[], base: ReadonlyMap<string, string> = new Map<string, string>()): Generator<ReadonlyMap<string, string>> {
     // there will be F^k "rows" to assign
     const factor_count = factors.length ** variables.length
     for (let idx = 0; idx < factor_count; idx++) {
-        const assignment = new Map<string, string>(base);
+        const assignments = new Map<string, string>(base);
 
         for (let variable_idx = 0; variable_idx < variables.length; variable_idx++) {
             const var_name = variables[variable_idx]!;
@@ -27,9 +27,9 @@ export const assignments = function* (variables: string[], factors: string[], ba
             // use place value on the row index in base F, the value at this variable's place is its factor index
             const factor_idx = Math.floor(idx / (factors.length ** variable_idx)) % factors.length;
 
-            assignment.set(var_name, factors[factor_idx]!);
+            assignments.set(var_name, factors[factor_idx]!);
         }
 
-        yield assignment;
+        yield assignments;
     }
 }
