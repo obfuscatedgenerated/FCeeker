@@ -1,7 +1,12 @@
 import {type FormulaNode, get_children, type Pattern} from "@fceeker/ast";
 import {collect_free_variables} from "../variables";
 import {word_equation_satisfies} from "./word_equation";
-import {factorise, generate_assignments} from "../factors";
+import {
+    factorise,
+    generate_assignments_from_generator,
+    generate_assignments_from_list,
+    generate_factors
+} from "../factors";
 
 interface QueryResultBase {
     warnings: string[];
@@ -80,13 +85,13 @@ export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = 
     };
 
     const free_vars = collect_free_variables(formula);
-    const factors = factorise(word);
+    const factors = generate_factors(word);
 
     if (opts.progress_start) {
-        opts.progress_start(factors.length ** free_vars.size);
+        opts.progress_start(factors.max_count ** free_vars.size);
     }
 
-    const assignment_gen = generate_assignments(Array.from(free_vars), factors);
+    const assignment_gen = generate_assignments_from_generator(Array.from(free_vars), factors.generator());
 
     const output = new Set<ReadonlyMap<string, string>>();
 
