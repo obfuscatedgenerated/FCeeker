@@ -42,9 +42,14 @@ if (!parsed.success) {
 }
 
 let bar: ProgressBar | null = null;
+let found = 0;
 const output = execute(parsed.ast, input_word, {
-    progress_start: (total) => bar = new ProgressBar("Working: [:bar] :current/:total assignments (:percent)", {total}),
-    progress_tick: (count) => bar && bar.tick(count)
+    progress_start: (total) => {
+        bar = new ProgressBar("Working: [:bar] :current/:total assignments (:percent) - Found :found satisfying assignments.", {total})
+        bar.tick({found: 0});
+    },
+    progress_tick: (count) => bar && bar.tick(count),
+    on_found: () => bar && bar.tick({found: ++found})
 });
 
 console.log("\n");

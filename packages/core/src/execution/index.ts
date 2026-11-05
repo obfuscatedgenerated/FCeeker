@@ -76,6 +76,7 @@ export const check_factors = (word: string, assignments: ReadonlyMap<string, str
 interface ExecuteOpts {
     progress_start?: (total: number) => void;
     progress_tick?: (count?: number) => void;
+    on_found?: (assignments: ReadonlyMap<string, string>) => void;
     // TODO: should warn move here as a callback? should there be a callback to get results as they come in?
 }
 
@@ -108,6 +109,10 @@ export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = 
 
         if (opts.progress_tick) {
             opts.progress_tick();
+        }
+
+        if (result && opts.on_found) {
+            opts.on_found(assignments);
         }
     }
 
