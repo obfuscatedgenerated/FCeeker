@@ -1,40 +1,27 @@
-export const factorise = (word: string) => {
+import type {UnicodeWord} from "./unicode";
+
+export const factorise = (word: UnicodeWord) => {
     const factor_set = new Set<string>([""]);
 
-    // iterate in codepoints, not chars (otherwise 2-wide unicode gets split up)
-    const word_codepoints = Array.from(word);
-
     // sliding window
-    for (let window_size = 1; window_size <= word_codepoints.length; window_size++) {
-        for (let window_start = 0; window_start <= word_codepoints.length - window_size; window_start++) {
-            const factor = word_codepoints.slice(window_start, window_start + window_size).join("");
+    for (let window_size = 1; window_size <= word.n_codepoints; window_size++) {
+        for (let window_start = 0; window_start <= word.n_codepoints - window_size; window_start++) {
+            const factor = word.substring(window_start, window_start + window_size);
             factor_set.add(factor);
         }
     }
 
     return Array.from(factor_set);
 }
-export const generate_factors = (word: string) => {
-    // iterate in codepoints, not chars (otherwise 2-wide unicode gets split up)
-    const word_codepoints = Array.from(word);
+export const generate_factors = function* (word: UnicodeWord): Generator<string> {
+    // empty string always returned first
+    yield "";
 
-    return {
-        // the maximum possible number of factors, assuming duplicates arent skipped (as this is precomputed)
-        // for each window size w there are n - w+1 start positions, summed over w = 1...n =  n(n+1)/2 (+ the empty)
-        max_count: 1 + (word_codepoints.length * (word_codepoints.length + 1)) / 2,
-
-        // called to generate the next factor
-        generator: function* (): Generator<string> {
-            // empty string always returned first
-            yield "";
-
-            // sliding window
-            for (let window_size = 1; window_size <= word_codepoints.length; window_size++) {
-                for (let window_start = 0; window_start <= word_codepoints.length - window_size; window_start++) {
-                    const factor = word_codepoints.slice(window_start, window_start + window_size).join("");
-                    yield factor;
-                }
-            }
+    // sliding window
+    for (let window_size = 1; window_size <= word.n_codepoints; window_size++) {
+        for (let window_start = 0; window_start <= word.n_codepoints - window_size; window_start++) {
+            const factor = word.substring(window_start, window_start + window_size);
+            yield factor;
         }
     }
 }

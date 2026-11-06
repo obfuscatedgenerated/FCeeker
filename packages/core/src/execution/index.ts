@@ -7,6 +7,7 @@ import {
     generate_assignments_from_list,
     generate_factors
 } from "../factors";
+import {build_unicode_word} from "../unicode";
 
 interface QueryResultBase {
     warnings: string[];
@@ -30,7 +31,7 @@ export interface QueryResultError extends QueryResultBase {
 export type QueryResult = QueryResultBoolean | QueryResultFactors | QueryResultError;
 
 export interface EvaluationContext {
-    word: string;
+    word: string; // TODO: accept both string and UnicodeWord (which for now is just unboxed to a string)
     assignments: ReadonlyMap<string, string>;
     skip_factor_check?: boolean;
 }
@@ -80,19 +81,22 @@ interface ExecuteOpts {
     // TODO: should warn move here as a callback? should there be a callback to get results as they come in?
 }
 
+// TODO: accept both string (which is converted to UnicodeWord as it is now) and UnicodeWord directly
 export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = {}): QueryResult => {
     const base_result: QueryResultBase = {
         warnings: []
     };
 
+    const uni_word = build_unicode_word(word);
+
     const free_vars = collect_free_variables(formula);
-    const factors = generate_factors(word);
+    const factor_gen = generate_factors(uni_word);
 
     if (opts.progress_start) {
-        opts.progress_start(factors.max_count ** free_vars.size);
+        opts.progress_start(uni_word.possible_factors ** free_vars.size);
     }
 
-    const assignment_gen = generate_assignments_from_generator(Array.from(free_vars), factors.generator());
+    const assignment_gen = generate_assignments_from_generator(Array.from(free_vars), factor_gen);
 
     const output = new Set<ReadonlyMap<string, string>>();
 
