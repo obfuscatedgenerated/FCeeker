@@ -4,7 +4,7 @@ import {word_equation_satisfies} from "./word_equation";
 import {
     factorise,
     generate_assignments_from_generator,
-    generate_assignments_from_list,
+    generate_assignments_from_list, generate_assignments_from_spans,
     generate_factors
 } from "../factors";
 import {build_unicode_word} from "../unicode";
@@ -90,13 +90,14 @@ export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = 
     const uni_word = build_unicode_word(word);
 
     const free_vars = collect_free_variables(formula);
-    const factor_gen = generate_factors(uni_word);
+    //const factor_gen = generate_factors(uni_word);
 
     if (opts.progress_start) {
         opts.progress_start(uni_word.possible_factors ** free_vars.size);
     }
 
-    const assignment_gen = generate_assignments_from_generator(Array.from(free_vars), factor_gen);
+    //const assignment_gen = generate_assignments_from_generator(Array.from(free_vars), factor_gen);
+    const assignment_gen = generate_assignments_from_spans(Array.from(free_vars), uni_word);
 
     const output = new Set<ReadonlyMap<string, string>>();
 

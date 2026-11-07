@@ -129,3 +129,81 @@ export const generate_assignments_from_generator = function* (
         yield new Map(state);
     }
 }
+
+interface VarCounter {
+    start: number;
+    size: number;
+}
+
+export const generate_assignments_from_spans = function* (
+    variables: string[],
+    word: UnicodeWord,
+    base?: ReadonlyMap<string, string>
+): Generator<ReadonlyMap<string, string>> {
+    // TODO: skip duplicates via canonical check
+
+    // for each variable, track a start and size counter
+    const var_counters: VarCounter[] = variables.map(() => ({
+        start: 0,
+        size: 0
+    }));
+
+    // increments a single counter, returning whether it wrapped around
+    const increment_counter = (counter: VarCounter): boolean => {
+        if (counter.size === 0) {
+            counter.start = 0;
+
+            if (word.n_codepoints === 0) {
+                return true;
+            }
+
+            counter.size = 1;
+            return false;
+        }
+
+        if (++counter.start + counter.size > word.n_codepoints) {
+            counter.start = 0;
+            if (++counter.size > word.n_codepoints) {
+                counter.size = 0;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // increment the first variable, if it wraps around then increment the second, etc, returning whether the last variable wrapped around (meaning all variables are tested)
+    const increment_variables = (): boolean => {
+        for (let variable_idx = 0; variable_idx < variables.length; variable_idx++) {
+            const wrapped = increment_counter(var_counters[variable_idx]!);
+            if (!wrapped) {
+                // it didn't wrap, so must still be mid-cycle, therefore nothing else to do
+                return false;
+            }
+        }
+
+        // all wrapped, meaning the last wrapped
+        return true;
+    }
+
+    while (true) {
+        const assignments = new Map<string, string>(base);
+
+        // take current assignment
+        for (let variable_idx = 0; variable_idx < variables.length; variable_idx++) {
+            const var_name = variables[variable_idx]!;
+            const counter = var_counters[variable_idx]!;
+            assignments.set(var_name, word.substring(counter.start, counter.start + counter.size));
+        }
+
+        yield assignments;
+
+        const done = increment_variables();
+        if (done) {
+            break;
+        }
+    }
+}
+
+
+// TODO: suffix arrays and LCP
