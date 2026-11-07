@@ -93,6 +93,7 @@ export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = 
     //const factor_gen = generate_factors(uni_word);
 
     if (opts.progress_start) {
+        // this loses precision for high numbers, but node-progress doesnt take bigint anyway
         opts.progress_start(uni_word.possible_factors ** free_vars.size);
     }
 
