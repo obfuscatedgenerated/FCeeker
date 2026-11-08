@@ -147,15 +147,15 @@ export const execute = (formula: FormulaNode, word: string | UnicodeWord, opts: 
             if (!seen_assignments.has(key)) {
                 output.add(assignments);
                 seen_assignments.add(key);
+
+                if (opts.on_found) {
+                    opts.on_found(assignments);
+                }
             }
         }
 
         if (opts.progress_tick) {
             opts.progress_tick();
-        }
-
-        if (result && opts.on_found) {
-            opts.on_found(assignments);
         }
     }
 
