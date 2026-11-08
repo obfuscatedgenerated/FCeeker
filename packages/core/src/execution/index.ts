@@ -121,6 +121,7 @@ export const execute = (formula: FormulaNode, word: string | UnicodeWord, opts: 
     const assignment_gen = generate_assignments_from_spans(Array.from(free_vars), word);
 
     const output = new Set<ReadonlyMap<string, string>>();
+    const seen_assignments = new Set<string>;
 
     for (const assignments of assignment_gen) {
         const result = satisfies(formula, {
@@ -130,7 +131,13 @@ export const execute = (formula: FormulaNode, word: string | UnicodeWord, opts: 
         });
 
         if (result) {
-            output.add(assignments);
+            // deduplicate results (as dedupe of assignments currently unimpl for the span based generator)
+            const key = JSON.stringify(Array.from(assignments.values()));
+
+            if (!seen_assignments.has(key)) {
+                output.add(assignments);
+                seen_assignments.add(key);
+            }
         }
 
         if (opts.progress_tick) {
