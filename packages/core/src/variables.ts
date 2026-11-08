@@ -1,4 +1,6 @@
-import {type ASTNode, get_children} from "@fceeker/ast";
+import {type ASTNode, find_all_in_ast, get_children, type QuantificationNode} from "@fceeker/ast";
+
+// TODO: should these return variable nodes? will still need to use name to ensure unique instances arent both added
 
 export const collect_free_variables = (node: ASTNode, free = new Set<string>()): Set<string> => {
     switch (node.type) {
@@ -51,4 +53,18 @@ export const collect_free_variables = (node: ASTNode, free = new Set<string>()):
     }
 
     return free;
+}
+
+export const collect_bound_variables = (node: ASTNode) => {
+    const quants = find_all_in_ast(
+        node,
+        (n) => n.type === "ExistentialQuantification" || n.type === "UniversalQuantification"
+    ) as QuantificationNode[];
+
+    const bound = new Set<string>();
+    for (const quant of quants) {
+        quant.variables.forEach((v) => bound.add(v.name));
+    }
+
+    return bound;
 }

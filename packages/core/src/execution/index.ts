@@ -8,6 +8,7 @@ import {
     generate_factors
 } from "../factors";
 import {build_unicode_word, type UnicodeWord} from "../unicode";
+import {existential_quantifier_satisfies, universal_quantifier_satisfies} from "./quantifiers";
 
 interface QueryResultBase {
     warnings: string[];
@@ -61,6 +62,10 @@ export const satisfies = (root_formula: FormulaNode, ctx: EvaluationContext): bo
             }
 
             return true;
+        case "ExistentialQuantification":
+            return existential_quantifier_satisfies(root_formula, ctx);
+        case "UniversalQuantification":
+            return universal_quantifier_satisfies(root_formula, ctx);
         default:
             throw new Error(`${root_formula.type} formulae not yet supported`);
     }
