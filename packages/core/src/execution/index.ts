@@ -7,7 +7,8 @@ import {
     generate_assignments_from_list, generate_assignments_from_spans,
     generate_factors
 } from "../factors";
-import {build_unicode_word} from "../unicode";
+import {build_unicode_word, type UnicodeWord} from "../unicode";
+import {existential_quantifier_satisfies, universal_quantifier_satisfies} from "./quantifiers";
 
 interface QueryResultBase {
     warnings: string[];
@@ -31,7 +32,7 @@ export interface QueryResultError extends QueryResultBase {
 export type QueryResult = QueryResultBoolean | QueryResultFactors | QueryResultError;
 
 export interface EvaluationContext {
-    word: string; // TODO: accept both string and UnicodeWord (which for now is just unboxed to a string)
+    word: UnicodeWord; // TODO: accept both string and UnicodeWord
     assignments: ReadonlyMap<string, string>;
     skip_factor_check?: boolean;
 }
@@ -61,6 +62,10 @@ export const satisfies = (root_formula: FormulaNode, ctx: EvaluationContext): bo
             }
 
             return true;
+        case "ExistentialQuantification":
+            return existential_quantifier_satisfies(root_formula, ctx);
+        case "UniversalQuantification":
+            return universal_quantifier_satisfies(root_formula, ctx);
         default:
             throw new Error(`${root_formula.type} formulae not yet supported`);
     }
@@ -81,24 +86,25 @@ interface ExecuteOpts {
     // TODO: should warn move here as a callback? should there be a callback to get results as they come in?
 }
 
-// TODO: accept both string (which is converted to UnicodeWord as it is now) and UnicodeWord directly
-export const execute = (formula: FormulaNode, word: string, opts: ExecuteOpts = {}): QueryResult => {
+export const execute = (formula: FormulaNode, word: string | UnicodeWord, opts: ExecuteOpts = {}): QueryResult => {
     const base_result: QueryResultBase = {
         warnings: []
     };
 
-    const uni_word = build_unicode_word(word);
+    if (typeof word === "string") {
+        word = build_unicode_word(word);
+    }
 
     const free_vars = collect_free_variables(formula);
-    //const factor_gen = generate_factors(uni_word);
+    //const factor_gen = generate_factors(word);
 
     if (opts.progress_start) {
         // this loses precision for high numbers, but node-progress doesnt take bigint anyway
-        opts.progress_start(uni_word.possible_factors ** free_vars.size);
+        opts.progress_start(word.possible_factors ** free_vars.size);
     }
 
     //const assignment_gen = generate_assignments_from_generator(Array.from(free_vars), factor_gen);
-    const assignment_gen = generate_assignments_from_spans(Array.from(free_vars), uni_word);
+    const assignment_gen = generate_assignments_from_spans(Array.from(free_vars), word);
 
     const output = new Set<ReadonlyMap<string, string>>();
 
