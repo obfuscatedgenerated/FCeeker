@@ -33,6 +33,7 @@ IN_CONSTRAINT: '∈' | '∈̇' | 'IN';
 REGULAR_EXPRESSION: '/' REGULAR_EXPRESSION_BODY '/'; // note that regexp grammar not parsed here, will be handed to chosen engine at runtime to parse
 fragment REGULAR_EXPRESSION_BODY: (~('/' | '\n' | '\r' | '\\') | REGULAR_EXPRESSION_ESCAPED)*;
 fragment REGULAR_EXPRESSION_ESCAPED: ESCAPE ~('\n' | '\r'); // regexp will allow any escaped character, but not escaping an actual newline
+// TODO: any flags worth exposing?
 
 UNIVERSAL: '∀' | 'FORALL';
 EXISTENTIAL: '∃' | 'EXISTS';

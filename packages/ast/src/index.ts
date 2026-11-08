@@ -36,7 +36,7 @@ export interface WordEquationNode extends ASTNodeBase {
 export interface RegularConstraintNode extends ASTNodeBase {
     type: "RegularConstraint";
     variable: VariableNode;
-    regex: string;
+    pattern: string;
 }
 
 export type AtomNode = WordEquationNode | RegularConstraintNode;

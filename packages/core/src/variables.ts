@@ -1,4 +1,4 @@
-import {type ASTNode, find_all_in_ast, get_children, type QuantificationNode} from "@fceeker/ast";
+import {type ASTNode, find_all_in_ast, get_children, type QuantificationNode, type VariableNode} from "@fceeker/ast";
 
 // TODO: should these return variable nodes? will still need to use name to ensure unique instances arent both added
 
@@ -67,4 +67,17 @@ export const collect_bound_variables = (node: ASTNode) => {
     }
 
     return bound;
+}
+
+export const get_variable_value = (node: VariableNode, assignments: ReadonlyMap<string, string>, word: string)=>  {
+    if (node.type === "UniverseVariable") {
+        return word;
+    }
+
+    const assignment = assignments.get(node.name);
+    if (assignment === undefined) {
+        throw new Error(`Unbound variable ${node.name}`);
+    }
+
+    return assignment;
 }

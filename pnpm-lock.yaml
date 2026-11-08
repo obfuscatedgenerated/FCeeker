@@ -28,6 +28,9 @@ importers:
       '@fceeker/ast':
         specifier: workspace:*
         version: link:../ast
+      re2js:
+        specifier: ^2.9.1
+        version: 2.9.1
 
   packages/parser-antlr:
     dependencies:
@@ -394,6 +397,10 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
 
+  re2js@2.9.1:
+    resolution: {integrity: sha512-JIT3bEEUZTOR2YS1walNEIfH4cF/cQeZcBUFq7ldqO6lR6g0X5CBq/S8rsa9omzZcsNf8qc36jCkWpKKtncrZg==}
+    engines: {node: '>=20.0.0'}
+
   stringtemplate4ts@1.0.9:
     resolution: {integrity: sha512-KYZm2bJlSjynG5Y+L46fkaKBQG6mhV6hb2RBA8dpx3/Vj6G4u7gwXNKYvaN9+QD5sj68/1srtSNDvqEso7MwsQ==}
 
@@ -623,6 +630,8 @@ snapshots:
   pako@0.2.9: {}
 
   progress@2.0.3: {}
+
+  re2js@2.9.1: {}
 
   stringtemplate4ts@1.0.9:
     dependencies:

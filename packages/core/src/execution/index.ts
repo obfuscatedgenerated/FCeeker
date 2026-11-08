@@ -1,5 +1,5 @@
 import {type FormulaNode, get_children, type Pattern} from "@fceeker/ast";
-import {collect_free_variables} from "../variables";
+import {collect_free_variables, get_variable_value} from "../variables";
 import {word_equation_satisfies} from "./word_equation";
 import {
     factorise,
@@ -9,6 +9,7 @@ import {
 } from "../factors";
 import {build_unicode_word, type UnicodeWord} from "../unicode";
 import {existential_quantifier_satisfies, universal_quantifier_satisfies} from "./quantifiers";
+import {compile_regular_expr} from "../regular_expr";
 
 interface QueryResultBase {
     warnings: string[];
@@ -66,8 +67,17 @@ export const satisfies = (root_formula: FormulaNode, ctx: EvaluationContext): bo
             return existential_quantifier_satisfies(root_formula, ctx);
         case "UniversalQuantification":
             return universal_quantifier_satisfies(root_formula, ctx);
+        case "RegularConstraint": {
+            const compiled = compile_regular_expr(root_formula.pattern);
+            if (!compiled.success) {
+                throw new Error(`Syntax error in regular expression: ${compiled.syntax_error}. Parser should've caught this!`);
+            }
+
+            const lhs_value = get_variable_value(root_formula.variable, ctx.assignments, ctx.word.text);
+            return compiled.reg_expr.matches(lhs_value);
+        }
         default:
-            throw new Error(`${root_formula.type} formulae not yet supported`);
+            throw new Error(`${(root_formula as any).type} formulae not yet supported`);
     }
 }
 

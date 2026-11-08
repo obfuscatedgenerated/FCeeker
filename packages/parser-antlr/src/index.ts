@@ -6,7 +6,7 @@ import {CharStream, CommonTokenStream} from "antlr4ng";
 import {FCRegLexer} from "./grammar/generated/FCRegLexer";
 import {FCRegParser} from "./grammar/generated/FCRegParser";
 
-import {FCRegToASTVisitor} from "./visitor";
+import {FCRegToASTVisitor, VisitorSyntaxError} from "./visitor";
 import {CustomErrorListener} from "./error_listener";
 
 export default ((text) => {
@@ -43,7 +43,7 @@ export default ((text) => {
         return {
             success: false,
             errors: [{
-                kind: "transform",
+                kind: (e instanceof VisitorSyntaxError) ? "syntax" : "transform",
                 message: (e instanceof Error) ? e.message : String(e)
             }]
         };

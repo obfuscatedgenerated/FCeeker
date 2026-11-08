@@ -1,5 +1,6 @@
 import type {Pattern, WordEquationNode} from "@fceeker/ast";
 import type {EvaluationContext} from "./index";
+import {get_variable_value} from "../variables";
 
 export const compute_pattern = (pattern: Readonly<Pattern>, assignments: ReadonlyMap<string, string>, word: string, skip_factor_check = false): string => {
     let output = "";
@@ -13,16 +14,12 @@ export const compute_pattern = (pattern: Readonly<Pattern>, assignments: Readonl
                 output += word;
                 break;
             case "NamedVariable": {
-                const frag_val = assignments.get(fragment.name);
-                if (frag_val !== undefined) {
-                    if (!skip_factor_check && !word.includes(frag_val)) {
-                        throw new Error(`${frag_val} is not a factor of ${word}`);
-                    }
-
-                    output += frag_val;
-                } else {
-                    throw new Error(`Unbound variable ${fragment.name}`);
+                const frag_val = get_variable_value(fragment, assignments, word);
+                if (!skip_factor_check && !word.includes(frag_val)) {
+                    throw new Error(`${frag_val} is not a factor of ${word}`);
                 }
+
+                output += frag_val;
             }
                 break
         }

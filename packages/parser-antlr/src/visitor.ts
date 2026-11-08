@@ -16,6 +16,11 @@ import type {
     WordEquationContext
 } from "./grammar/generated/FCRegParser";
 import {FCRegParser, VariableContext} from "./grammar/generated/FCRegParser";
+import {compile_regular_expr} from "@fceeker/core";
+
+export class VisitorSyntaxError extends Error {
+
+}
 
 export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     readonly #codepoint_offsets: number[];
@@ -128,10 +133,17 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
     }
 
     override visitRegularConstraint = (ctx: RegularConstraintContext): RegularConstraintNode => {
+        const pattern = this.#unescape_regex(ctx.REGULAR_EXPRESSION().getText());
+        const compile_result = compile_regular_expr(pattern);
+
+        if (!compile_result.success) {
+            throw new VisitorSyntaxError(compile_result.syntax_error);
+        }
+
         return {
             type: "RegularConstraint",
             variable: this.visitVariable(ctx.variable()),
-            regex: this.#unescape_regex(ctx.REGULAR_EXPRESSION().getText()),
+            pattern,
             span: this.#get_span(ctx)
         };
     }
