@@ -137,7 +137,7 @@ export class FCRegToASTVisitor extends FCRegVisitor<ASTNode> {
         const compile_result = compile_regular_expr(pattern);
 
         if (!compile_result.success) {
-            throw new VisitorSyntaxError(compile_result.syntax_error);
+            throw new VisitorSyntaxError(`${compile_result.syntax_error} in regular expression /${pattern}/`);
         }
 
         return {
