@@ -46,10 +46,10 @@ let found = 0;
 const output = execute(parsed.ast, input_word, {
     progress_start: (total) => {
         bar = new ProgressBar("Working: [:bar] :current/:total assignments (:percent, :rate per second) - Found :found satisfying assignments.", {total})
-        bar.tick({found: 0});
+        bar.render({found: 0});
     },
     progress_tick: (count) => bar && bar.tick(count),
-    on_found: () => bar && bar.tick({found: ++found})
+    on_found: () => bar && bar.render({found: ++found})
 });
 
 console.log("\n");
