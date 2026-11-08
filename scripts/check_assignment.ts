@@ -1,5 +1,5 @@
 import parse from "@fceeker/parser-antlr";
-import {collect_free_variables, satisfies} from "@fceeker/core";
+import {build_unicode_word, collect_free_variables, satisfies} from "@fceeker/core";
 
 import * as fs from "node:fs";
 import * as console from "node:console";
@@ -46,7 +46,7 @@ if (free_vars.size === 0) {
     console.log("(no free variables)");
 
     const result = satisfies(parsed.ast, {
-        word: input_word,
+        word: build_unicode_word(input_word),
         assignments: new Map(),
         skip_factor_check: true
     });
@@ -83,7 +83,7 @@ const ask_for_assignments = async () => {
 
 ask_for_assignments().then((assignments) => {
     const result = satisfies(parsed.ast, {
-        word: input_word,
+        word: build_unicode_word(input_word),
         assignments,
         skip_factor_check: true
     });
