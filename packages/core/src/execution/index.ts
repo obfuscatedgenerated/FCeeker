@@ -98,6 +98,20 @@ export const execute = (formula: FormulaNode, word: string | UnicodeWord, opts: 
     const free_vars = collect_free_variables(formula);
     //const factor_gen = generate_factors(word);
 
+    if (free_vars.size === 0) {
+        const satisfying = satisfies(formula, {
+            word,
+            assignments: new Map(),
+            skip_factor_check: true
+        });
+
+        return {
+            ...base_result,
+            type: "boolean",
+            result: satisfying
+        }
+    }
+
     if (opts.progress_start) {
         // this loses precision for high numbers, but node-progress doesnt take bigint anyway
         opts.progress_start(word.possible_factors ** free_vars.size);
@@ -127,8 +141,6 @@ export const execute = (formula: FormulaNode, word: string | UnicodeWord, opts: 
             opts.on_found(assignments);
         }
     }
-
-    // TODO: will need to evaluate assignments for quantifiers once implemented
 
     return {
         ...base_result,
