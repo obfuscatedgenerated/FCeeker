@@ -63,7 +63,7 @@ export const App = () => {
                     />
                 </div>
 
-                <ResultsSidebar visible={sidebar_visible} />
+                <ResultsSidebar visible={sidebar_visible} on_close={() => setSidebarVisible(false)} />
             </div>
         </main>
     );
