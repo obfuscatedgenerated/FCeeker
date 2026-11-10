@@ -2,15 +2,17 @@ import {Header} from "./components/Header.tsx";
 import {CodeEditor} from "./components/CodeEditor.tsx";
 import {useEffect, useRef, useState} from "react";
 import {ResultsSidebar} from "./components/ResultsSidebar.tsx";
-import {Ellipsis, Play} from "lucide-react";
+import {Play} from "lucide-react";
 import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
-import {Group, Panel, type PanelImperativeHandle, Separator} from "react-resizable-panels";
+import {Group, Panel, type PanelImperativeHandle} from "react-resizable-panels";
+import {StyledSeparator} from "./components/StyledSeparator.tsx";
 
 export const App = () => {
     const [fc_query, setFCQuery] = useState("");
     const [input_word, setInputWord] = useState("");
 
     const [sidebar_visible, setSidebarVisible] = useState(false);
+    const [sidebar_animate, setSidebarAnimate] = useState(false);
     const sidebar_panel_ref = useRef<PanelImperativeHandle>(null);
 
     const [query_running, setQueryRunning] = useState(false);
@@ -22,9 +24,23 @@ export const App = () => {
             setTimeout(() => {
                 setQueryRunning(false);
                 setSidebarVisible(true);
+                setSidebarAnimate(true);
             }, 1000);
         }
     }, [query_running]);
+
+    // clear animate flag once anim ends
+    useEffect(() => {
+        if (!sidebar_animate) {
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            setSidebarAnimate(false);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [sidebar_animate]);
 
     useEffect(() => {
         const sidebar_panel = sidebar_panel_ref.current;
@@ -41,9 +57,9 @@ export const App = () => {
 
     return (
         <main className="h-screen flex flex-col">
-            <Header/>
+            <Header />
 
-            <Group className="*:transition-[flex-grow]">
+            <Group className={`${sidebar_animate ? "*:transition-[flex-grow] *:duration-300" : ""}`}>
                 <Panel>
                     <Group orientation="vertical">
                         <Panel minSize="10%">
@@ -74,9 +90,7 @@ export const App = () => {
                             />
                         </Panel>
 
-                        <Separator className="bg-base-300 flex items-center justify-center hover:bg-base-200 transition-colors">
-                            <Ellipsis />
-                        </Separator>
+                        <StyledSeparator />
 
                         <Panel minSize="10%">
                             <CodeEditor
@@ -89,12 +103,17 @@ export const App = () => {
                     </Group>
                 </Panel>
 
+                {sidebar_visible && <StyledSeparator vertical />}
+
                 <Panel panelRef={sidebar_panel_ref} collapsible minSize="20%" defaultSize={0} onResize={() => {
                     if (sidebar_panel_ref.current.isCollapsed()) {
                         setSidebarVisible(false);
                     }
                 }}>
-                    <ResultsSidebar visible={sidebar_visible} on_close={() => setSidebarVisible(false)} />
+                    <ResultsSidebar visible={sidebar_visible} on_close={() => {
+                        setSidebarVisible(false)
+                        setSidebarAnimate(true);
+                    }} />
                 </Panel>
             </Group>
         </main>
