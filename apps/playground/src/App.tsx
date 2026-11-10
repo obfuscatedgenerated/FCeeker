@@ -6,6 +6,7 @@ import {Play} from "lucide-react";
 import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
 import {Group, Panel, type PanelImperativeHandle} from "react-resizable-panels";
 import {StyledSeparator} from "./components/StyledSeparator.tsx";
+import {StatusWidget} from "./components/StatusWidget.tsx";
 
 export const App = () => {
     const [fc_query, setFCQuery] = useState("");
@@ -21,10 +22,11 @@ export const App = () => {
     // TODO: or should the sidebar become visible right away to show progress and real time results?
     useEffect(() => {
         if (query_running) {
+            setSidebarVisible(true);
+            setSidebarAnimate(true);
+
             setTimeout(() => {
                 setQueryRunning(false);
-                setSidebarVisible(true);
-                setSidebarAnimate(true);
             }, 1000);
         }
     }, [query_running]);
@@ -60,7 +62,7 @@ export const App = () => {
             <Header />
 
             <Group className={`${sidebar_animate ? "*:transition-[flex-grow] *:duration-300" : ""}`}>
-                <Panel>
+                <Panel className="relative">
                     <Group orientation="vertical">
                         <Panel minSize="10%">
                             <CodeEditor
@@ -101,6 +103,8 @@ export const App = () => {
                             />
                         </Panel>
                     </Group>
+
+                    {/*<StatusWidget />*/}
                 </Panel>
 
                 {sidebar_visible && <StyledSeparator vertical />}
