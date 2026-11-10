@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "@fontsource-variable/lexend";
+
+:root {
+  --background: #aaaaaa;
+  background-color: var(--background);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #222222;
+  }
+}
+
+@theme inline {
+  --font-title: "Lexend Variable", sans-serif;
+  --color-background: var(--background);
+}
