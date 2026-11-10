@@ -1,12 +1,15 @@
 import {Header} from "./components/Header.tsx";
 import {CodeEditor} from "./components/CodeEditor.tsx";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {ResultsSidebar} from "./components/ResultsSidebar.tsx";
 import {Play} from "lucide-react";
 import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
 import {Group, Panel, type PanelImperativeHandle} from "react-resizable-panels";
 import {StyledSeparator} from "./components/StyledSeparator.tsx";
 import {StatusWidget} from "./components/StatusWidget.tsx";
+import {parse_fc} from "./util/runner.ts";
+import {fc_linter} from "./util/linter.ts";
+import {lintGutter} from "@codemirror/lint";
 
 export const App = () => {
     const [fc_query, setFCQuery] = useState("");
@@ -18,13 +21,26 @@ export const App = () => {
 
     const [query_running, setQueryRunning] = useState(false);
 
-    // dummy for now
-    // TODO: or should the sidebar become visible right away to show progress and real time results?
-    useEffect(() => {
-        if (query_running) {
+    const run_query = useCallback(
+        () => {
+            const parsed = parse_fc(fc_query);
+            if (!parsed.success) {
+                // TODO: handle error highlight
+                return;
+            }
+
+            console.log(parsed.ast);
+
+            setQueryRunning(true);
             setSidebarVisible(true);
             setSidebarAnimate(true);
+        },
+        [fc_query, input_word]
+    );
 
+    // dummy for now
+    useEffect(() => {
+        if (query_running) {
             setTimeout(() => {
                 setQueryRunning(false);
             }, 1000);
@@ -72,7 +88,7 @@ export const App = () => {
                                 on_change={setFCQuery}
                                 extra_buttons={
                                     <>
-                                        <button className="ml-auto btn flex gap-2" disabled={query_running} onClick={() => setQueryRunning(true)}>
+                                        <button className="ml-auto btn flex gap-2" disabled={query_running} onClick={run_query}>
                                             {query_running ? (
                                                 <>
                                                     Running...
@@ -89,6 +105,7 @@ export const App = () => {
                                         </button>
                                     </>
                                 }
+                                extensions={[fc_linter, lintGutter()]}
                             />
                         </Panel>
 

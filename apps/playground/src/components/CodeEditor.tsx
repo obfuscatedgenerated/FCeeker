@@ -1,4 +1,4 @@
-import CodeMirror from "@uiw/react-codemirror";
+import CodeMirror, {type Extension} from "@uiw/react-codemirror";
 import {githubDark, githubLight} from "@uiw/codemirror-theme-github";
 import {useMediaQuery} from "../hooks/useMediaQuery.ts";
 import {FolderOpen, Save} from "lucide-react";
@@ -9,6 +9,7 @@ interface CodeEditorProps {
     title?: string;
     className?: string;
     extra_buttons?: React.ReactNode;
+    extensions?: Extension[];
 }
 
 export const CodeEditor = ({
@@ -16,7 +17,8 @@ export const CodeEditor = ({
     on_change,
     title,
     className = "",
-    extra_buttons = null
+    extra_buttons = null,
+    extensions,
 }: CodeEditorProps) => {
     const dark_mode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -49,6 +51,7 @@ export const CodeEditor = ({
                 value={value}
                 onChange={on_change}
                 theme={dark_mode ? githubDark : githubLight}
+                extensions={extensions}
             />
         </div>
     );
