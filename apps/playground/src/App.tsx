@@ -17,3 +17,4 @@ export const App = () => {
         </main>
     );
 }
+// TODO: mobile layout (vertical scrolled)
