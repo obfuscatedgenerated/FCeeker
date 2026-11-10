@@ -16,3 +16,7 @@
   --font-title: "Lexend Variable", sans-serif;
   --color-background: var(--background);
 }
+
+.cm-editor, .cm-gutters {
+  height: 100%;
+}
