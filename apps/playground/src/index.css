@@ -1,20 +1,28 @@
 @import "tailwindcss";
 @import "@fontsource-variable/lexend";
 
+@plugin "daisyui";
+
 :root {
   --background: #aaaaaa;
+  --foreground: #000000;
+
   background-color: var(--background);
+  color: var(--foreground);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #222222;
+    --foreground: #ffffff;
   }
 }
 
 @theme inline {
   --font-title: "Lexend Variable", sans-serif;
+
   --color-background: var(--background);
+  --color-foreground: var(--foreground);
 }
 
 .cm-editor, .cm-gutters {
