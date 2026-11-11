@@ -69,7 +69,6 @@ export const App = () => {
             }
 
             // TODO: cancelation
-            // TODO: what to do if query changes? or should it just be locked readonly during exec
         },
         [fc_query, input_word]
     );
@@ -113,6 +112,7 @@ export const App = () => {
                                 className="h-full"
                                 value={fc_query}
                                 on_change={setFCQuery}
+                                readonly={query_running}
                                 extra_buttons={
                                     <>
                                         <button className="ml-auto btn flex gap-2" disabled={query_running} onClick={run_query}>
@@ -144,6 +144,7 @@ export const App = () => {
                                 className="h-full"
                                 value={input_word}
                                 on_change={setInputWord}
+                                readonly={query_running}
                             />
                         </Panel>
                     </Group>
