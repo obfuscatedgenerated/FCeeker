@@ -82,7 +82,7 @@ export const App = () => {
                     <Group orientation="vertical">
                         <Panel minSize="10%">
                             <CodeEditor
-                                title="FC Query"
+                                title="FC[REG] Query"
                                 className="h-full"
                                 value={fc_query}
                                 on_change={setFCQuery}
