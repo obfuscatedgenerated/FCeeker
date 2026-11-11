@@ -89,7 +89,7 @@ export const check_factors = (word: string, assignments: ReadonlyMap<string, str
     }
 }
 
-interface ExecuteOpts {
+export interface ExecuteOpts {
     progress_start?: (total: number) => void;
     progress_tick?: (count?: number) => void;
     on_found?: (assignments: ReadonlyMap<string, string>) => void;

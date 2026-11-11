@@ -10,6 +10,8 @@ import {StatusWidget} from "./components/StatusWidget.tsx";
 import {parse_fc} from "./util/runner.ts";
 import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
 import {lintGutter} from "@codemirror/lint";
+import {useTabularData} from "./hooks/useTabularData.ts";
+import {execute} from "@fceeker/core";
 
 export const App = () => {
     const [fc_query, setFCQuery] = useState("");
@@ -20,6 +22,8 @@ export const App = () => {
     const sidebar_panel_ref = useRef<PanelImperativeHandle>(null);
 
     const [query_running, setQueryRunning] = useState(false);
+
+    const results = useTabularData<ReadonlyMap<string, string>>();
 
     const run_query = useCallback(
         () => {
@@ -34,18 +38,35 @@ export const App = () => {
             setQueryRunning(true);
             setSidebarVisible(true);
             setSidebarAnimate(true);
+
+            const result = execute(parsed.ast, input_word, {
+                on_found: (assignments) => {
+                    results.add_row(assignments);
+                }
+            });
+
+            setQueryRunning(false);
+            console.log(result);
+
+            if (result.type === "error") {
+                console.error(result.message);
+            } else if (result.type === "boolean") {
+                // TODO: handle
+                console.log(`Query result: ${result.result}`);
+            } else {
+                results.set_rows(Array.from(result.result));
+            }
+
+            if (result.warnings.length > 0) {
+                // TODO: show in ui
+                console.warn("Warnings:");
+                for (const warning of result.warnings) {
+                    console.warn(`- ${warning}`);
+                }
+            }
         },
         [fc_query, input_word]
     );
-
-    // dummy for now
-    useEffect(() => {
-        if (query_running) {
-            setTimeout(() => {
-                setQueryRunning(false);
-            }, 1000);
-        }
-    }, [query_running]);
 
     // clear animate flag once anim ends
     useEffect(() => {
@@ -131,7 +152,7 @@ export const App = () => {
                         setSidebarVisible(false);
                     }
                 }}>
-                    <ResultsSidebar visible={sidebar_visible} on_close={() => {
+                    <ResultsSidebar results={results} visible={sidebar_visible} on_close={() => {
                         setSidebarVisible(false)
                         setSidebarAnimate(true);
                     }} />

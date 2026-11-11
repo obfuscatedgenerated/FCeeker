@@ -1,5 +1,4 @@
 import parse from "@fceeker/parser-antlr";
-import {execute} from "@fceeker/core";
 
 export const parse_fc = (fc_contents: string) => {
     const parsed = parse(fc_contents);
