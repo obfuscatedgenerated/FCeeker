@@ -38,7 +38,7 @@ export const CodeEditor = ({
                     {/*<kbd className="kbd">Ctrl</kbd> + <kbd className="kbd">O</kbd>*/}
                 </button>
 
-                <button disabled={readonly} className="btn flex gap-2">
+                <button className="btn flex gap-2">
                     <Save className="w-4" />
                     Download file
 
