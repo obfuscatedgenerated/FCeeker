@@ -7,11 +7,11 @@ import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
 import {Group, Panel, type PanelImperativeHandle} from "react-resizable-panels";
 import {StyledSeparator} from "./components/StyledSeparator.tsx";
 import {StatusWidget} from "./components/StatusWidget.tsx";
-import {parse_fc} from "./util/runner.ts";
+import {execute_fc_in_worker, parse_fc} from "./util/runner.ts";
 import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
 import {lintGutter} from "@codemirror/lint";
 import {useTabularData} from "./hooks/useTabularData.ts";
-import {collect_free_variables, execute} from "@fceeker/core";
+import {collect_free_variables} from "@fceeker/core";
 
 export const App = () => {
     const [fc_query, setFCQuery] = useState("");
@@ -27,7 +27,7 @@ export const App = () => {
     const [variables, setVariables] = useState<string[]>([]);
 
     const run_query = useCallback(
-        () => {
+        async () => {
             const parsed = parse_fc(fc_query);
             if (!parsed.success) {
                 // TODO: handle error highlight
@@ -42,7 +42,7 @@ export const App = () => {
 
             setVariables([...collect_free_variables(parsed.ast)]);
 
-            const result = execute(parsed.ast, input_word, {
+            const result = await execute_fc_in_worker(parsed.ast, input_word, {
                 on_found: (assignments) => {
                     results.add_row(assignments);
                 }
@@ -67,6 +67,9 @@ export const App = () => {
                     console.warn(`- ${warning}`);
                 }
             }
+
+            // TODO: cancelation
+            // TODO: what to do if query changes? or should it just be locked readonly during exec
         },
         [fc_query, input_word]
     );
