@@ -4,7 +4,10 @@ packages:
   - scripts/
 
 catalog:
+  '@types/jest': ^30.0.0
   '@types/node': 22.18.0
+  jest: ^30.5.2
+  ts-jest: ^29.4.15
 
 onlyBuiltDependencies:
   - esbuild
