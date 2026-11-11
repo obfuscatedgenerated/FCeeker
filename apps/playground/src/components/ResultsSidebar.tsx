@@ -6,16 +6,15 @@ interface ResultsSidebarProps {
     visible: boolean;
     on_close: () => void;
     results?: TabularData<ReadonlyMap<string, string>>;
+    variables?: string[];
 }
 
 export const ResultsSidebar = ({
     visible,
     on_close,
-    results
+    results,
+    variables
 }: ResultsSidebarProps) => {
-    // TODO: more efficient dep since the first row theoretically has all vars
-    const variables = useMemo(() => results && results.n_rows > 0 && Array.from(results.row_data.current[0].keys()), [results, results.n_rows]);
-
     return (
         <aside inert={!visible} className="bg-base-200 min-w-0 min-h-0 overflow-hidden h-full">
             <div className="min-w-80 h-full p-3 flex flex-col gap-3">
@@ -30,7 +29,7 @@ export const ResultsSidebar = ({
                 {results && results.n_rows + " results"}
 
                 <div className="overflow-auto flex-1 min-h-0">
-                    {results && (
+                    {results && variables && (
                         <table className="table table-pin-rows w-full">
                             <thead>
                                 <tr>

@@ -11,7 +11,7 @@ import {parse_fc} from "./util/runner.ts";
 import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
 import {lintGutter} from "@codemirror/lint";
 import {useTabularData} from "./hooks/useTabularData.ts";
-import {execute} from "@fceeker/core";
+import {collect_free_variables, execute} from "@fceeker/core";
 
 export const App = () => {
     const [fc_query, setFCQuery] = useState("");
@@ -24,6 +24,7 @@ export const App = () => {
     const [query_running, setQueryRunning] = useState(false);
 
     const results = useTabularData<ReadonlyMap<string, string>>();
+    const [variables, setVariables] = useState<string[]>([]);
 
     const run_query = useCallback(
         () => {
@@ -38,6 +39,8 @@ export const App = () => {
             setQueryRunning(true);
             setSidebarVisible(true);
             setSidebarAnimate(true);
+
+            setVariables([...collect_free_variables(parsed.ast)]);
 
             const result = execute(parsed.ast, input_word, {
                 on_found: (assignments) => {
@@ -152,10 +155,15 @@ export const App = () => {
                         setSidebarVisible(false);
                     }
                 }}>
-                    <ResultsSidebar results={results} visible={sidebar_visible} on_close={() => {
-                        setSidebarVisible(false)
-                        setSidebarAnimate(true);
-                    }} />
+                    <ResultsSidebar
+                        results={results}
+                        variables={variables}
+                        visible={sidebar_visible}
+                        on_close={() => {
+                            setSidebarVisible(false)
+                            setSidebarAnimate(true);
+                        }}
+                    />
                 </Panel>
             </Group>
         </main>
