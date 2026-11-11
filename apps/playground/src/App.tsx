@@ -8,7 +8,7 @@ import {Group, Panel, type PanelImperativeHandle} from "react-resizable-panels";
 import {StyledSeparator} from "./components/StyledSeparator.tsx";
 import {StatusWidget} from "./components/StatusWidget.tsx";
 import {parse_fc} from "./util/runner.ts";
-import {fc_linter} from "./util/linter.ts";
+import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
 import {lintGutter} from "@codemirror/lint";
 
 export const App = () => {
@@ -105,7 +105,7 @@ export const App = () => {
                                         </button>
                                     </>
                                 }
-                                extensions={[fc_linter, lintGutter()]}
+                                extensions={[fc_syntax_highlighter, fc_special_highlights, fc_linter, lintGutter()]}
                             />
                         </Panel>
 

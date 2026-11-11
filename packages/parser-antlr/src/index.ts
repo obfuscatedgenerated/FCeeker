@@ -1,23 +1,15 @@
-import {build_codepoint_offset_table, type Parser} from "@fceeker/core";
+import {type Parser, type Lexer, type Token, type TokenName} from "@fceeker/core";
 import type {FormulaNode} from "@fceeker/ast";
 
-import {CharStream, CommonTokenStream} from "antlr4ng";
+import {CommonTokenStream} from "antlr4ng";
 
-import {FCRegLexer} from "./grammar/generated/FCRegLexer";
 import {FCRegParser} from "./grammar/generated/FCRegParser";
 
 import {FCRegToASTVisitor, VisitorSyntaxError} from "./visitor";
-import {CustomErrorListener} from "./error_listener";
+import {convert_token, create_lexer} from "./lexer";
 
 export default ((text) => {
-    const codepoint_offsets = build_codepoint_offset_table(text);
-    const chars = CharStream.fromString(text);
-
-    const error_listener = new CustomErrorListener(codepoint_offsets);
-
-    const lexer = new FCRegLexer(chars);
-    lexer.removeErrorListeners();
-    lexer.addErrorListener(error_listener);
+    const {lexer, error_listener, codepoint_offsets} = create_lexer(text);
 
     const tokens = new CommonTokenStream(lexer);
 
@@ -54,3 +46,15 @@ export default ((text) => {
         ast: output_ast
     };
 }) satisfies Parser;
+
+export const lex: Lexer = (text: string) => {
+    const {lexer, error_listener, codepoint_offsets} = create_lexer(text);
+
+    const antlr_tokens = lexer.getAllTokens();
+    const tokens = antlr_tokens.map(token => convert_token(token, codepoint_offsets)).filter((token): token is Token => token !== null);
+
+    return {
+        tokens,
+        errors: error_listener.errors
+    };
+}

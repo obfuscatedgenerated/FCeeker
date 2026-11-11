@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/language": "^6.13.1",
     "@codemirror/lint": "^6.9.7",
     "@fceeker/core": "workspace:*",
     "@fceeker/parser-antlr": "workspace:*",
     "@fontsource-variable/lexend": "^5.3.0",
     "@fontsource-variable/roboto": "^5.3.0",
+    "@lezer/highlight": "^1.2.5",
     "@tailwindcss/vite": "^4.3.5",
     "@uiw/codemirror-theme-github": "^4.25.12",
     "@uiw/react-codemirror": "^4.25.12",
