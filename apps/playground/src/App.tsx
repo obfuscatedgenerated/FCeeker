@@ -40,6 +40,7 @@ export const App = () => {
             setSidebarVisible(true);
             setSidebarAnimate(true);
 
+            results.clear_rows();
             setVariables([...collect_free_variables(parsed.ast)]);
 
             const result = await execute_fc_in_worker(parsed.ast, input_word, {
