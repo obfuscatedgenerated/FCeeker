@@ -1,6 +1,6 @@
 import {Header} from "./components/Header.tsx";
 import {CodeEditor} from "./components/CodeEditor.tsx";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useEffectEvent, useRef, useState} from "react";
 import {ResultsSidebar} from "./components/ResultsSidebar.tsx";
 import {Play} from "lucide-react";
 import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
@@ -26,53 +26,64 @@ export const App = () => {
     const results = useTabularData<ReadonlyMap<string, string>>();
     const [variables, setVariables] = useState<string[]>([]);
 
-    const run_query = useCallback(
-        async () => {
-            const parsed = parse_fc(fc_query);
-            if (!parsed.success) {
-                // TODO: handle error highlight
-                return;
+    const run_query = async () => {
+        const parsed = parse_fc(fc_query);
+        if (!parsed.success) {
+            // TODO: handle error highlight
+            return;
+        }
+
+        console.log(parsed.ast);
+
+        setQueryRunning(true);
+        setSidebarVisible(true);
+        setSidebarAnimate(true);
+
+        results.clear_rows();
+        setVariables([...collect_free_variables(parsed.ast)]);
+
+        const result = await execute_fc_in_worker(parsed.ast, input_word, {
+            on_found: (assignments) => {
+                results.add_row(assignments);
             }
+        });
 
-            console.log(parsed.ast);
+        setQueryRunning(false);
+        console.log(result);
 
-            setQueryRunning(true);
-            setSidebarVisible(true);
-            setSidebarAnimate(true);
+        if (result.type === "error") {
+            console.error(result.message);
+        } else if (result.type === "boolean") {
+            // TODO: handle
+            console.log(`Query result: ${result.result}`);
+        } else {
+            results.set_rows(Array.from(result.result));
+        }
 
-            results.clear_rows();
-            setVariables([...collect_free_variables(parsed.ast)]);
-
-            const result = await execute_fc_in_worker(parsed.ast, input_word, {
-                on_found: (assignments) => {
-                    results.add_row(assignments);
-                }
-            });
-
-            setQueryRunning(false);
-            console.log(result);
-
-            if (result.type === "error") {
-                console.error(result.message);
-            } else if (result.type === "boolean") {
-                // TODO: handle
-                console.log(`Query result: ${result.result}`);
-            } else {
-                results.set_rows(Array.from(result.result));
+        if (result.warnings.length > 0) {
+            // TODO: show in ui
+            console.warn("Warnings:");
+            for (const warning of result.warnings) {
+                console.warn(`- ${warning}`);
             }
+        }
 
-            if (result.warnings.length > 0) {
-                // TODO: show in ui
-                console.warn("Warnings:");
-                for (const warning of result.warnings) {
-                    console.warn(`- ${warning}`);
-                }
+        // TODO: cancelation
+    };
+    const run_query_shortcut = useEffectEvent(() => run_query())
+
+    useEffect(() => {
+        const listener = (e: KeyboardEvent) => {
+            if (e.key === "F8") {
+                e.preventDefault();
+                run_query_shortcut();
             }
+        }
 
-            // TODO: cancelation
-        },
-        [fc_query, input_word]
-    );
+        window.addEventListener("keydown", listener);
+
+        return () => window.removeEventListener("keydown", listener);
+    }, []);
 
     // clear animate flag once anim ends
     useEffect(() => {
@@ -102,7 +113,7 @@ export const App = () => {
 
     return (
         <main className="h-screen flex flex-col">
-            <Header />
+            <Header/>
 
             <Group className={`${sidebar_animate ? "*:transition-[flex-grow] *:duration-300" : ""}`}>
                 <Panel className="relative">
@@ -116,15 +127,16 @@ export const App = () => {
                                 readonly={query_running}
                                 extra_buttons={
                                     <>
-                                        <button className="ml-auto btn flex gap-2" disabled={query_running} onClick={run_query}>
+                                        <button className="ml-auto btn flex gap-2" disabled={query_running}
+                                                onClick={run_query}>
                                             {query_running ? (
                                                 <>
                                                     Running...
-                                                    <LoadingSpinner />
+                                                    <LoadingSpinner/>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Play className="w-4" />
+                                                    <Play className="w-4"/>
                                                     Run query
 
                                                     <kbd className="kbd">F8</kbd>
@@ -137,7 +149,7 @@ export const App = () => {
                             />
                         </Panel>
 
-                        <StyledSeparator />
+                        <StyledSeparator/>
 
                         <Panel minSize="10%">
                             <CodeEditor
@@ -153,7 +165,7 @@ export const App = () => {
                     {/*<StatusWidget />*/}
                 </Panel>
 
-                {sidebar_visible && <StyledSeparator vertical />}
+                {sidebar_visible && <StyledSeparator vertical/>}
 
                 <Panel panelRef={sidebar_panel_ref} collapsible minSize="20%" defaultSize={0} onResize={() => {
                     if (sidebar_panel_ref.current.isCollapsed()) {
