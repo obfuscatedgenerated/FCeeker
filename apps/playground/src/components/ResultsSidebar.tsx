@@ -1,16 +1,36 @@
 import {X} from "lucide-react";
 import {useExecution} from "../contexts/ExecutionContext.tsx";
+import {LoadingSpinner} from "./LoadingSpinner.tsx";
 
 interface ResultsSidebarProps {
     visible: boolean;
     on_close: () => void;
 }
 
+const STEP_MS = 120;
+
+const RowSkeleton = ({cols}: {cols: number}) => (
+    <tr>
+        {[...Array(cols)].map((_, col_idx) => {
+            return (
+                <td key={col_idx}>
+                    <div
+                        className="motion-reduce:animate-none block w-5/6 bg-base-content/20 animate-chase h-[0.75lh] rounded"
+                        style={{
+                            animationDelay: `${col_idx * STEP_MS}ms`,
+                        }}
+                    />
+                </td>
+            );
+        })}
+    </tr>
+);
+
 export const ResultsSidebar = ({
     visible,
     on_close,
 }: ResultsSidebarProps) => {
-    const {results, variables} = useExecution();
+    const {running, results, variables} = useExecution();
 
     return (
         <aside inert={!visible} className="bg-base-200 min-w-0 min-h-0 overflow-hidden h-full">
@@ -23,7 +43,11 @@ export const ResultsSidebar = ({
                     </button>
                 </div>
 
-                {results.n_rows + " results"}
+                <div className="flex items-center justify-between w-full">
+                    {results.n_rows + " results"}
+
+                    {running && <LoadingSpinner />}
+                </div>
 
                 <div className="overflow-auto flex-1 min-h-0">
                     {variables && (
@@ -31,7 +55,7 @@ export const ResultsSidebar = ({
                             <thead>
                                 <tr>
                                     {variables.map(varname => (
-                                        <th>
+                                        <th key={varname}>
                                             {varname}
                                         </th>
                                     ))}
@@ -47,6 +71,11 @@ export const ResultsSidebar = ({
                                         ))}
                                     </tr>
                                 ))}
+
+                                {running && (
+                                    results.n_rows > 0 ? <RowSkeleton cols={variables.length} />
+                                    : [...Array(10)].map((_, idx) => <RowSkeleton key={idx} cols={variables.length} />)
+                                )}
                             </tbody>
                         </table>
                     )}

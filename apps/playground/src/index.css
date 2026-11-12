@@ -27,6 +27,13 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --animate-chase: chase 3s ease-in-out infinite;
+
+  @keyframes chase {
+    0%, 25%, 100% { opacity: 1; }
+    12% { opacity: 0.25; }
+  }
 }
 
 .cm-editor, .cm-gutters {
