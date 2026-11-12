@@ -1,20 +1,17 @@
 import {X} from "lucide-react";
-import type {TabularData} from "../hooks/useTabularData.ts";
-import {useMemo} from "react";
+import {useExecution} from "../contexts/ExecutionContext.tsx";
 
 interface ResultsSidebarProps {
     visible: boolean;
     on_close: () => void;
-    results?: TabularData<ReadonlyMap<string, string>>;
-    variables?: string[];
 }
 
 export const ResultsSidebar = ({
     visible,
     on_close,
-    results,
-    variables
 }: ResultsSidebarProps) => {
+    const {results, variables} = useExecution();
+
     return (
         <aside inert={!visible} className="bg-base-200 min-w-0 min-h-0 overflow-hidden h-full">
             <div className="min-w-80 h-full p-3 flex flex-col gap-3">
@@ -26,10 +23,10 @@ export const ResultsSidebar = ({
                     </button>
                 </div>
 
-                {results && results.n_rows + " results"}
+                {results.n_rows + " results"}
 
                 <div className="overflow-auto flex-1 min-h-0">
-                    {results && variables && (
+                    {variables && (
                         <table className="table table-pin-rows w-full">
                             <thead>
                                 <tr>
