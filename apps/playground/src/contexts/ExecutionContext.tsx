@@ -36,6 +36,8 @@ export const ExecutionProvider = ({children}: {children: React.ReactNode}) => {
             console.log(parsed.ast);
 
             setRunning(true);
+            setProgressTotal(undefined);
+            setProgressValue(0);
 
             results.clear_rows();
             setVariables([...collect_free_variables(parsed.ast)]);

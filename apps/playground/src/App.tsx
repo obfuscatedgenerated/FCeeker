@@ -1,6 +1,6 @@
 import {Header} from "./components/Header.tsx";
 import {CodeEditor} from "./components/CodeEditor.tsx";
-import {useEffect, useEffectEvent, useRef, useState} from "react";
+import {useCallback, useEffect, useEffectEvent, useRef, useState} from "react";
 import {ResultsSidebar} from "./components/ResultsSidebar.tsx";
 import {Play} from "lucide-react";
 import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
@@ -9,6 +9,7 @@ import {StyledSeparator} from "./components/StyledSeparator.tsx";
 import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
 import {lintGutter} from "@codemirror/lint";
 import {ExecutionProvider, useExecution} from "./contexts/ExecutionContext.tsx";
+import {StatusWidget} from "./components/StatusWidget.tsx";
 
 export const App = () => (
     <main className="h-screen flex flex-col">
@@ -32,28 +33,22 @@ const AppInternal = () => {
 
     const run_query_shortcut = useEffectEvent(() => run_query(fc_query, input_word));
 
+    const animate_open_sidebar = useCallback(
+        () => {
+            setSidebarVisible(true);
+            setSidebarAnimate(true);
+        },
+        []
+    );
+
     // open sidebar when a run starts
     useEffect(() => {
         if (!running) {
             return;
         }
 
-        setSidebarVisible(true);
-        setSidebarAnimate(true);
-    }, [running]);
-
-    useEffect(() => {
-        const listener = (e: KeyboardEvent) => {
-            if (e.key === "F8") {
-                e.preventDefault();
-                run_query_shortcut();
-            }
-        }
-
-        window.addEventListener("keydown", listener);
-
-        return () => window.removeEventListener("keydown", listener);
-    }, []);
+        animate_open_sidebar();
+    }, [running, animate_open_sidebar]);
 
     // clear animate flag once anim ends
     useEffect(() => {
@@ -80,6 +75,19 @@ const AppInternal = () => {
             sidebar_panel.collapse();
         }
     }, [sidebar_visible]);
+
+    useEffect(() => {
+        const listener = (e: KeyboardEvent) => {
+            if (e.key === "F8") {
+                e.preventDefault();
+                run_query_shortcut();
+            }
+        }
+
+        window.addEventListener("keydown", listener);
+
+        return () => window.removeEventListener("keydown", listener);
+    }, []);
 
     return (
         <Group className={`${sidebar_animate ? "not-motion-reduce:*:transition-[flex-grow] not-motion-reduce:*:duration-300" : ""}`}>
@@ -128,7 +136,7 @@ const AppInternal = () => {
                     </Panel>
                 </Group>
 
-                {/*<StatusWidget />*/}
+                <StatusWidget sidebar_visible={sidebar_visible} open_sidebar={animate_open_sidebar} />
             </Panel>
 
             {sidebar_visible && <StyledSeparator vertical/>}
