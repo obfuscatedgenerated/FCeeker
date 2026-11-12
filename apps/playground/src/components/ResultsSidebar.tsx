@@ -15,7 +15,7 @@ const RowSkeleton = ({cols}: {cols: number}) => (
             return (
                 <td key={col_idx}>
                     <div
-                        className="motion-reduce:animate-none block w-5/6 bg-base-content/20 animate-chase h-[0.75lh] rounded"
+                        className="block w-5/6 bg-base-content/20 not-motion-reduce:animate-chase h-[0.75lh] rounded"
                         style={{
                             animationDelay: `${col_idx * STEP_MS}ms`,
                         }}

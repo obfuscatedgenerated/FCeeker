@@ -82,7 +82,7 @@ const AppInternal = () => {
     }, [sidebar_visible]);
 
     return (
-        <Group className={`${sidebar_animate ? "*:transition-[flex-grow] *:duration-300" : ""}`}>
+        <Group className={`${sidebar_animate ? "not-motion-reduce:*:transition-[flex-grow] not-motion-reduce:*:duration-300" : ""}`}>
             <Panel className="relative">
                 <Group orientation="vertical">
                     <Panel minSize="10%">
