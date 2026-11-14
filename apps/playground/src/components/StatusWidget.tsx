@@ -10,7 +10,7 @@ interface StatusWidgetProps {
 }
 
 export const StatusWidget = ({sidebar_visible, open_sidebar}: StatusWidgetProps) => {
-    const {progress, running, results} = useExecution();
+    const {progress, running, results, cancel} = useExecution();
 
     const percentage = useMemo(() => progress !== undefined ? (progress.value / progress.total) : 0, [progress]);
 
@@ -39,7 +39,7 @@ export const StatusWidget = ({sidebar_visible, open_sidebar}: StatusWidgetProps)
                     </button>
                 )}
 
-                <button className="flex items-center justify-center cursor-pointer text-error" onClick={() => {}} title="Cancel query">
+                <button className="flex items-center justify-center cursor-pointer text-error" onClick={cancel} title="Cancel query">
                     <X />
                 </button>
             </div>
