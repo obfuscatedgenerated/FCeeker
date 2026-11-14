@@ -50,9 +50,11 @@ export const execute_fc_in_worker = async (ast: FormulaNode, input_word: string,
                     }
                     break;
                 case "result_batch":
-                    // TODO: support batched output, for now assuming just one as thats all is sent
+                    // TODO: support batched output, for now dispatches multiple events
                     if (opts.on_found) {
-                        opts.on_found(message.rows[0]!);
+                        for (const row of message.rows) {
+                            opts.on_found(row);
+                        }
                     }
                     break;
                 case "finished":

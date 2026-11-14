@@ -5,6 +5,9 @@ const send = (message: WorkerResponseMessage) => self.postMessage(message);
 
 let exec_id_counter = 0;
 
+const TICK_FLUSH_MS = 50;
+const RESULT_FLUSH_MS = 100;
+
 self.addEventListener("message", (e: WorkerRequestMesssageEvent) => {
     const message = e.data;
 
@@ -19,6 +22,46 @@ self.addEventListener("message", (e: WorkerRequestMesssageEvent) => {
 
     const exec_id = ++exec_id_counter;
 
+    let progress_tick_batch = 0;
+    let last_tick_flush = performance.now();
+
+    const flush_ticks = () => {
+        send({
+            type: "progress_tick",
+            exec_id,
+            count: progress_tick_batch
+        });
+
+        progress_tick_batch = 0;
+        last_tick_flush = performance.now();
+    }
+
+    let result_batch: ReadonlyMap<string, string>[] = [];
+    let last_result_flush = performance.now();
+
+    const flush_results = () => {
+        send({
+            type: "result_batch",
+            exec_id,
+            rows: result_batch
+        });
+
+        result_batch = [];
+        last_result_flush = performance.now();
+    }
+
+    const evaluate_flushes = () => {
+        const now = performance.now();
+
+        if (now - last_tick_flush >= TICK_FLUSH_MS) {
+            flush_ticks();
+        }
+
+        if (now - last_result_flush >= RESULT_FLUSH_MS) {
+            flush_results();
+        }
+    }
+
     try {
         const result = execute(message.ast, message.input_word, {
             progress_start: (total) => send({
@@ -26,19 +69,18 @@ self.addEventListener("message", (e: WorkerRequestMesssageEvent) => {
                 exec_id,
                 total
             }),
-            // TODO: tick batching
-            progress_tick: (count) => send({
-                type: "progress_tick",
-                exec_id,
-                count
-            }),
-            // TODO: result batching
-            on_found: (assignments) => send({
-                type: "result_batch",
-                exec_id,
-                rows: [assignments]
-            })
+            progress_tick: (count) => {
+                progress_tick_batch += count || 1;
+                evaluate_flushes();
+            },
+            on_found: (assignments) => {
+                result_batch.push(assignments);
+                evaluate_flushes();
+            }
         });
+
+        flush_ticks();
+        flush_results();
 
         send({
             type: "finished",
@@ -46,6 +88,9 @@ self.addEventListener("message", (e: WorkerRequestMesssageEvent) => {
             result
         });
     } catch (err) {
+        flush_ticks();
+        flush_results();
+
         send({
             type: "error",
             exec_id,

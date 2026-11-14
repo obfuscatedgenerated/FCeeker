@@ -39,6 +39,7 @@ export const StatusWidget = ({sidebar_visible, open_sidebar}: StatusWidgetProps)
                     </button>
                 )}
 
+                {/* TODO: confirm cancellation */}
                 <button className="flex items-center justify-center cursor-pointer text-error" onClick={cancel} title="Cancel query">
                     <X />
                 </button>

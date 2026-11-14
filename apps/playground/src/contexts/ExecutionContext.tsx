@@ -56,7 +56,7 @@ export const ExecutionProvider = ({children}: {children: React.ReactNode}) => {
             controller.signal.addEventListener("abort", () => {
                 abort_controller_ref.current = null;
                 setRunning(false);
-                setProgressTotal(undefined);
+
             })
 
             const result = await execute_fc_in_worker(parsed.ast, input_word, {
