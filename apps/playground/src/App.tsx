@@ -119,6 +119,7 @@ const AppInternal = () => {
                                     </button>
                                 </>
                             }
+                            file_ext=".fc"
                             extensions={[fc_syntax_highlighter, fc_special_highlights, fc_linter, lintGutter()]}
                         />
                     </Panel>
@@ -132,6 +133,7 @@ const AppInternal = () => {
                             value={input_word}
                             on_change={setInputWord}
                             readonly={running}
+                            file_ext=".txt"
                         />
                     </Panel>
                 </Group>
