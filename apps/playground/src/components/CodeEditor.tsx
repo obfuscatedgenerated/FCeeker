@@ -71,6 +71,7 @@ export const CodeEditor = ({
 
                 try {
                     const handle = await (window as any).showSaveFilePicker({
+                        id: file_ext,
                         suggestedName: suggested_name,
                         types: [
                             {accept: { "*/*": [file_ext] } }
