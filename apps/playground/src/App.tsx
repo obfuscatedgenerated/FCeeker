@@ -120,6 +120,10 @@ const AppInternal = () => {
                             readonly={running}
                             extra_buttons={
                                 <>
+                                    <span className={`ml-10 text-xs ${error_count !== 0 ? "text-error" : "opacity-50"}`}>
+                                        {error_count || "No"} error{error_count === 1 ? "" : "s"} {error_count === 0 ? ":)" : ""}
+                                    </span>
+
                                     <button
                                         className={`ml-auto btn flex gap-2 disabled:cursor-not-allowed pointer-events-auto ${error_count !== 0 ? "border border-error/50" : ""}`}
                                         disabled={running || error_count !== 0}
