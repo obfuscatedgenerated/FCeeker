@@ -177,3 +177,4 @@ const AppInternal = () => {
 }
 
 // TODO: mobile layout
+// TODO: button to manually formalise the whole query

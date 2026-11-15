@@ -30,7 +30,7 @@ export const setting_presentations: Record<SettingKey, SettingPresentation> = {
     },
     replace_with_unicode: {
         category: "Input",
-        label: "Replace with Unicode",
+        label: "Auto-formalise",
         description: "Automatically replace ASCII and keyword forms of symbols with their formal Unicode equivalents in the query input.",
         widget: "toggle",
     },
