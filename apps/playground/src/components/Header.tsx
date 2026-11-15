@@ -1,8 +1,10 @@
-import {HelpCircle} from "lucide-react";
+import {HelpCircle, Settings} from "lucide-react";
 import {HelpDialog} from "./HelpDialog.tsx";
 import {useState} from "react";
+import {SettingsDialog} from "./SettingsDialog.tsx";
 
 export const Header = () => {
+    const [settings_dialog_open, setSettingsDialogOpen] = useState(false);
     const [help_dialog_open, setHelpDialogOpen] = useState(false);
 
     return (
@@ -12,13 +14,18 @@ export const Header = () => {
 
                 <h1 className="font-title font-bold text-xl sm:text-3xl">FCeeker Playground</h1>
 
-                <div className="ml-auto flex gap-2">
+                <div className="ml-auto flex gap-5 px-2">
+                    <button className="cursor-pointer" onClick={() => setSettingsDialogOpen(true)} title="Settings">
+                        <Settings className="w-6" />
+                    </button>
+
                     <button className="cursor-pointer" onClick={() => setHelpDialogOpen(true)} title="Help">
                         <HelpCircle className="w-6" />
                     </button>
                 </div>
             </header>
 
+            <SettingsDialog open={settings_dialog_open} on_closed={() => setSettingsDialogOpen(false)} />
             <HelpDialog open={help_dialog_open} on_closed={() => setHelpDialogOpen(false)} />
         </>
     );
