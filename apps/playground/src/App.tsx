@@ -10,14 +10,17 @@ import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/ex
 import {lintGutter} from "@codemirror/lint";
 import {ExecutionProvider, useExecution} from "./contexts/ExecutionContext.tsx";
 import {StatusWidget} from "./components/StatusWidget.tsx";
+import {SettingsProvider, useSetting} from "./contexts/SettingsContext.tsx";
 
 export const App = () => (
     <main className="h-screen flex flex-col">
-        <Header/>
+        <SettingsProvider>
+            <Header/>
 
-        <ExecutionProvider>
-            <AppInternal />
-        </ExecutionProvider>
+            <ExecutionProvider>
+                <AppInternal />
+            </ExecutionProvider>
+        </SettingsProvider>
     </main>
 );
 
@@ -41,14 +44,16 @@ const AppInternal = () => {
         []
     );
 
-    // open sidebar when a run starts
+    const [auto_open_results] = useSetting("auto_open_results");
+
+    // open sidebar when a run starts if setting is enabled
     useEffect(() => {
-        if (!running) {
+        if (!running || !auto_open_results) {
             return;
         }
 
         animate_open_sidebar();
-    }, [running, animate_open_sidebar]);
+    }, [running, animate_open_sidebar, auto_open_results]);
 
     // clear animate flag once anim ends
     useEffect(() => {
