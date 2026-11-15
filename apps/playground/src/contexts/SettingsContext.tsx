@@ -5,12 +5,17 @@ const default_settings = {
     replace_with_unicode: true as boolean,
 } as const;
 
-type Settings = typeof default_settings;
-type SettingKey = keyof Settings;
+export type Settings = typeof default_settings;
+export type SettingKey = keyof Settings;
+
+
+export const setting_category_names = ["Execution", "Input"] as const;
+export type SettingCategory = typeof setting_category_names[number];
 
 export type SettingWidget = "toggle";
+
 export interface SettingPresentation {
-    category: string;
+    category: SettingCategory;
     label: string;
     description: string;
     widget: SettingWidget;
@@ -30,6 +35,12 @@ export const setting_presentations: Record<SettingKey, SettingPresentation> = {
         widget: "toggle",
     },
 } as const;
+
+export const setting_categories = setting_category_names.map(category => ({
+    name: category,
+    keys: (Object.keys(setting_presentations) as SettingKey[])
+        .filter(key => setting_presentations[key].category === category),
+}));
 
 interface SettingsContextType {
     settings: Settings;
