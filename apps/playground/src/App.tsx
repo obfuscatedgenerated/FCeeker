@@ -107,6 +107,8 @@ const AppInternal = () => {
 
     const [error_count, setErrorCount] = useState(0);
 
+    const disable_run = running || error_count !== 0 || !fc_query;
+
     return (
         <Group className={`${sidebar_animate ? "not-motion-reduce:*:transition-[flex-grow] not-motion-reduce:*:duration-300" : ""}`}>
             <Panel className="relative">
@@ -126,9 +128,9 @@ const AppInternal = () => {
 
                                     <button
                                         className={`ml-auto btn flex gap-2 disabled:cursor-not-allowed pointer-events-auto ${error_count !== 0 ? "border border-error/50" : ""}`}
-                                        disabled={running || error_count !== 0}
+                                        disabled={disable_run}
                                         onClick={run_query_shortcut}
-                                        title={error_count !== 0 ? "Your query has errors!" : undefined}
+                                        title={error_count !== 0 ? "Your query has errors!" : !fc_query ? "Please enter a query." : undefined}
                                     >
                                         {running ? (
                                             <>
@@ -140,7 +142,7 @@ const AppInternal = () => {
                                                 <Play className="w-4"/>
                                                 Run query
 
-                                                <kbd className={`kbd ${(running || error_count !== 0) ? "opacity-50" : ""}`}>F8</kbd>
+                                                <kbd className={`kbd ${disable_run ? "opacity-50" : ""}`}>F8</kbd>
                                             </>
                                         )}
                                     </button>

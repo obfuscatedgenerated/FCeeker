@@ -16,7 +16,12 @@ import {lex} from "@fceeker/parser-antlr";
 import {type Tag, tags} from "@lezer/highlight";
 
 export const fc_linter = linter(view => {
-    const parsed = parse_fc(view.state.doc.toString());
+    const doc = view.state.doc.toString();
+    if (!doc) {
+        return [];
+    }
+
+    const parsed = parse_fc(doc);
     if (!parsed.success) {
         return parsed.errors.map(e => ({
             from: e.span.start,
