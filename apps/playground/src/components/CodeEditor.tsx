@@ -1,8 +1,9 @@
-import CodeMirror, {type Extension} from "@uiw/react-codemirror";
+import CodeMirror, {type Extension, type ViewUpdate} from "@uiw/react-codemirror";
 import {githubDark, githubLight} from "@uiw/codemirror-theme-github";
 import {useMediaQuery} from "../hooks/useMediaQuery.ts";
 import {FolderOpen, Save} from "lucide-react";
 import {useCallback, useRef} from "react";
+import {forEachDiagnostic} from "@codemirror/lint";
 
 interface CodeEditorProps {
     value: string;
@@ -13,6 +14,7 @@ interface CodeEditorProps {
     extra_buttons?: React.ReactNode;
     file_ext: string;
     extensions?: Extension[];
+    on_error_count_change?: (errors: number) => void;
 }
 
 export const CodeEditor = ({
@@ -24,6 +26,7 @@ export const CodeEditor = ({
     extra_buttons = null,
     file_ext,
     extensions,
+    on_error_count_change
 }: CodeEditorProps) => {
     const dark_mode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -109,6 +112,30 @@ export const CodeEditor = ({
         []
     );
 
+    const error_count_ref = useRef(0);
+    const handle_update = useCallback(
+        (update: ViewUpdate) => {
+            if (!on_error_count_change) {
+                error_count_ref.current = 0;
+                return;
+            }
+
+            const old_error_count = error_count_ref.current;
+            let error_count = 0;
+            forEachDiagnostic(update.state, (diag) => {
+                if (diag.severity === "error") {
+                    error_count++;
+                }
+            });
+
+            if (old_error_count !== error_count) {
+                error_count_ref.current = error_count;
+                on_error_count_change(error_count);
+            }
+        },
+        [on_error_count_change]
+    );
+
     return (
         <div className={`flex flex-col ${className}`}>
             <div className="flex gap-1 items-center bg-base-100 px-2 py-1">
@@ -139,6 +166,7 @@ export const CodeEditor = ({
                 readOnly={readonly}
                 theme={dark_mode ? githubDark : githubLight}
                 extensions={extensions}
+                onUpdate={handle_update}
             />
         </div>
     );

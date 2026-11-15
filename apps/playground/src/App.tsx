@@ -103,7 +103,9 @@ const AppInternal = () => {
             base.push(fc_formaliser);
         }
         return base;
-    }, [auto_replace, lint_gutter])
+    }, [auto_replace, lint_gutter]);
+
+    const [error_count, setErrorCount] = useState(0);
 
     return (
         <Group className={`${sidebar_animate ? "not-motion-reduce:*:transition-[flex-grow] not-motion-reduce:*:duration-300" : ""}`}>
@@ -118,7 +120,12 @@ const AppInternal = () => {
                             readonly={running}
                             extra_buttons={
                                 <>
-                                    <button className="ml-auto btn flex gap-2" disabled={running} onClick={run_query_shortcut}>
+                                    <button
+                                        className={`ml-auto btn flex gap-2 disabled:cursor-not-allowed pointer-events-auto ${error_count !== 0 ? "border border-error/50" : ""}`}
+                                        disabled={running || error_count !== 0}
+                                        onClick={run_query_shortcut}
+                                        title={error_count !== 0 ? "Your query has errors!" : undefined}
+                                    >
                                         {running ? (
                                             <>
                                                 Running...
@@ -129,7 +136,7 @@ const AppInternal = () => {
                                                 <Play className="w-4"/>
                                                 Run query
 
-                                                <kbd className="kbd">F8</kbd>
+                                                <kbd className={`kbd ${(running || error_count !== 0) ? "opacity-50" : ""}`}>F8</kbd>
                                             </>
                                         )}
                                     </button>
@@ -137,6 +144,7 @@ const AppInternal = () => {
                             }
                             file_ext=".fc"
                             extensions={fc_editor_extensions}
+                            on_error_count_change={setErrorCount}
                         />
                     </Panel>
 
