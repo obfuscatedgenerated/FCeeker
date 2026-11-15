@@ -19,10 +19,10 @@ const SettingWidget = ({setting_key}: {setting_key: SettingKey}) => {
     }, [presentation]);
 
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-10">
             <div className="flex flex-col">
-                <h3 className="text-lg">{presentation.label}</h3>
-                <p className="opacity-70">{presentation.description}</p>
+                <h3 className="text-md">{presentation.label}</h3>
+                <p className="text-sm opacity-70 text-pretty">{presentation.description}</p>
             </div>
 
             {widget}
@@ -36,10 +36,12 @@ interface SettingsCategoryProps {
 }
 
 const SettingsCategory = ({name, keys}: SettingsCategoryProps) => (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
         <h2 className="text-xl font">{name}</h2>
 
-        {keys.map((key) => <SettingWidget key={key} setting_key={key} />)}
+        <div className="flex flex-col gap-2">
+            {keys.map((key) => <SettingWidget key={key} setting_key={key} />)}
+        </div>
     </div>
 );
 
