@@ -1,4 +1,6 @@
 import {Dialog} from "./Dialog.tsx";
+import {Check, Clipboard} from "lucide-react";
+import {useCallback, useState} from "react";
 
 const NonApplicable = () => (
     <td className="opacity-20" title="N/A">-</td>
@@ -8,12 +10,56 @@ const NameCell = ({children}: { children: string }) => (
     <td className="font-bold">{children}</td>
 );
 
+const CopyableCell = ({children, value}: { children: React.ReactNode, value: string }) => {
+    const [tick, setTick] = useState(false);
+
+    const copy = useCallback(
+        async () => {
+            await navigator.clipboard.writeText(value);
+            setTick(true);
+            setTimeout(() => setTick(false), 3000);
+        },
+        [value]
+    );
+
+    return (
+        <td className="flex items-center gap-2">
+            {children}
+
+            <button
+                className="ml-auto btn btn-sm btn-outline btn-ghost p-1"
+                onClick={copy}
+                title="Copy to clipboard"
+            >
+                <Clipboard className={`w-4 transition-opacity ${tick ? "opacity-0" : "opacity-100"}`}/>
+                <Check className={`w-4 text-success absolute transition-opacity ${tick ? "opacity-100" : "opacity-0"}`}/>
+            </button>
+        </td>
+    );
+}
+
 const CodeInline = ({children}: { children: string }) => (
     <code className="font-mono bg-base-200 px-1 rounded">{children}</code>
 );
 
-const CodeCell = ({children}: { children: string }) => (
-    <td><CodeInline>{children}</CodeInline></td>
+const CodeCell = ({children, copyable = false}: { children: string, copyable?: boolean }) => {
+    if (copyable) {
+        return (
+            <CopyableCell value={children}>
+                <CodeInline>{children}</CodeInline>
+            </CopyableCell>
+        );
+    } else {
+        return (
+            <td>
+                <CodeInline>{children}</CodeInline>
+            </td>
+        );
+    }
+};
+
+const Alternative = ({children}: { children: React.ReactNode }) => (
+    <span className="text-xs opacity-60">(or {children})</span>
 );
 
 export const HelpDialog = ({open, on_closed}: { open: boolean, on_closed: () => void }) => (
@@ -48,7 +94,9 @@ export const HelpDialog = ({open, on_closed}: { open: boolean, on_closed: () => 
                             <NameCell>Empty string</NameCell>
                             <CodeCell>""</CodeCell>
                             <CodeCell>EMPTY</CodeCell>
-                            <td><CodeInline>ε</CodeInline>, <CodeInline>ϵ</CodeInline></td>
+                            <CopyableCell value="ε">
+                                <CodeInline>ε</CodeInline> <Alternative><CodeInline>ϵ</CodeInline></Alternative>
+                            </CopyableCell>
                         </tr>
                         <tr>
                             <NameCell>Variable</NameCell>
@@ -59,50 +107,52 @@ export const HelpDialog = ({open, on_closed}: { open: boolean, on_closed: () => 
                         <tr>
                             <NameCell>Universe variable</NameCell>
                             <CodeCell>$U</CodeCell>
-                            <td><CodeInline>UNIV</CodeInline>, <CodeInline>INPUT</CodeInline></td>
-                            <CodeCell>𝔲</CodeCell>
+                            <td><CodeInline>UNIV</CodeInline> <Alternative><CodeInline>INPUT</CodeInline></Alternative></td>
+                            <CodeCell copyable>𝔲</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>Equals</NameCell>
                             <CodeCell>=</CodeCell>
                             <NonApplicable/>
-                            <CodeCell>≐</CodeCell>
+                            <CodeCell copyable>≐</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>Negation</NameCell>
                             <CodeCell>!</CodeCell>
                             <CodeCell>NOT</CodeCell>
-                            <CodeCell>¬</CodeCell>
+                            <CodeCell copyable>¬</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>Conjunction</NameCell>
                             <CodeCell>&&</CodeCell>
                             <CodeCell>AND</CodeCell>
-                            <CodeCell>∧</CodeCell>
+                            <CodeCell copyable>∧</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>Disjunction</NameCell>
                             <CodeCell>||</CodeCell>
                             <CodeCell>OR</CodeCell>
-                            <CodeCell>∨</CodeCell>
+                            <CodeCell copyable>∨</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>Universal quantifier</NameCell>
                             <NonApplicable/>
                             <CodeCell>FORALL x, y:</CodeCell>
-                            <CodeCell>∀ x, y:</CodeCell>
+                            <CodeCell copyable>∀ x, y:</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>Existential quantifier</NameCell>
                             <NonApplicable/>
                             <CodeCell>EXISTS x, y:</CodeCell>
-                            <CodeCell>∃ x, y:</CodeCell>
+                            <CodeCell copyable>∃ x, y:</CodeCell>
                         </tr>
                         <tr>
                             <NameCell>In constraint (regex)</NameCell>
                             <NonApplicable/>
                             <CodeCell>IN</CodeCell>
-                            <td><CodeInline>∈̇</CodeInline>, <CodeInline>∈</CodeInline></td>
+                            <CopyableCell value="∈̇">
+                                <CodeInline>∈̇</CodeInline> <Alternative><CodeInline>∈</CodeInline></Alternative>
+                            </CopyableCell>
                         </tr>
                         <tr>
                             <NameCell>Regular expression</NameCell>
@@ -123,5 +173,5 @@ export const HelpDialog = ({open, on_closed}: { open: boolean, on_closed: () => 
     </Dialog>
 );
 
-// TODO: option to copy preferred unicode form to clipboard (i.e. the first one given)
-// TODO: option to atuoamtically replace ascii forms with unicode forms in the query input
+// TODO: option to automatically replace ascii forms with unicode forms in the query input
+// TODO: shortcuts to invoke the unicode? i suppose replacement covers it though
