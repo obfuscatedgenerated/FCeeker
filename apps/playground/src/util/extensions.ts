@@ -3,7 +3,7 @@ import {parse_fc} from "./runner.ts";
 import {
     Decoration,
     type DecorationSet,
-    EditorView,
+    EditorView, Prec,
     RangeSetBuilder,
     ViewPlugin,
     type ViewUpdate,
@@ -14,6 +14,7 @@ import {isolateHistory} from "@codemirror/commands";
 import type {TokenName} from "@fceeker/core";
 import {lex} from "@fceeker/parser-antlr";
 import {type Tag, tags} from "@lezer/highlight";
+import {insertBracket} from "@codemirror/autocomplete";
 
 export const fc_linter = linter(view => {
     const doc = view.state.doc.toString();
@@ -115,7 +116,7 @@ const UNICODE_FORMS: Partial<Record<TokenName, string>> = {
     in_constraint: "∈̇"
 };
 
-export const fc_formaliser = EditorView.inputHandler.of((view, from, _to, text, insert) => {
+export const fc_formaliser = Prec.highest(EditorView.inputHandler.of((view, from, _to, text, insert) => {
     if (!BOUNDARY_CHARS.has(text)) {
         // no changes to make if it isnt a boundary char being input (to avoid replacing too early)
         return false;
@@ -124,7 +125,8 @@ export const fc_formaliser = EditorView.inputHandler.of((view, from, _to, text, 
     const token = lex(view.state.doc.toString()).tokens.find(token => token.span.end === from);
     const replacement = token && UNICODE_FORMS[token.name];
 
-    view.dispatch(insert());
+    // run insertBracket logic that has been overridden by the precedence
+    view.dispatch(insertBracket(view.state, text) ?? insert());
 
     // replace the source token with the formalised one if it exists
     if (token && replacement && token.value !== replacement) {
@@ -136,4 +138,4 @@ export const fc_formaliser = EditorView.inputHandler.of((view, from, _to, text, 
     }
 
     return true;
-});
+}));
