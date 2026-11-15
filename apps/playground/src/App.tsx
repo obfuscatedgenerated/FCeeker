@@ -1,12 +1,12 @@
 import {Header} from "./components/Header.tsx";
 import {CodeEditor} from "./components/CodeEditor.tsx";
-import {useCallback, useEffect, useEffectEvent, useRef, useState} from "react";
+import {useCallback, useEffect, useEffectEvent, useMemo, useRef, useState} from "react";
 import {ResultsSidebar} from "./components/ResultsSidebar.tsx";
 import {Play} from "lucide-react";
 import {LoadingSpinner} from "./components/LoadingSpinner.tsx";
 import {Group, Panel, type PanelImperativeHandle} from "react-resizable-panels";
 import {StyledSeparator} from "./components/StyledSeparator.tsx";
-import {fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
+import {fc_formaliser, fc_linter, fc_special_highlights, fc_syntax_highlighter} from "./util/extensions.ts";
 import {lintGutter} from "@codemirror/lint";
 import {ExecutionProvider, useExecution} from "./contexts/ExecutionContext.tsx";
 import {StatusWidget} from "./components/StatusWidget.tsx";
@@ -94,6 +94,17 @@ const AppInternal = () => {
         return () => window.removeEventListener("keydown", listener);
     }, []);
 
+    const [auto_replace] = useSetting("replace_with_unicode");
+
+    const lint_gutter = useMemo(() => lintGutter(), []);
+    const fc_editor_extensions = useMemo(() => {
+        const base = [fc_syntax_highlighter, fc_special_highlights, fc_linter, lint_gutter];
+        if (auto_replace) {
+            base.push(fc_formaliser);
+        }
+        return base;
+    }, [auto_replace, lint_gutter])
+
     return (
         <Group className={`${sidebar_animate ? "not-motion-reduce:*:transition-[flex-grow] not-motion-reduce:*:duration-300" : ""}`}>
             <Panel className="relative">
@@ -125,7 +136,7 @@ const AppInternal = () => {
                                 </>
                             }
                             file_ext=".fc"
-                            extensions={[fc_syntax_highlighter, fc_special_highlights, fc_linter, lintGutter()]}
+                            extensions={fc_editor_extensions}
                         />
                     </Panel>
 

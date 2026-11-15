@@ -3,12 +3,13 @@ import {parse_fc} from "./runner.ts";
 import {
     Decoration,
     type DecorationSet,
-    type EditorView,
+    EditorView,
     RangeSetBuilder,
     ViewPlugin,
     type ViewUpdate,
 } from "@uiw/react-codemirror";
 import {highlightingFor, HighlightStyle, syntaxHighlighting} from "@codemirror/language";
+import {isolateHistory} from "@codemirror/commands";
 
 import type {TokenName} from "@fceeker/core";
 import {lex} from "@fceeker/parser-antlr";
@@ -95,3 +96,39 @@ export const fc_special_highlights = syntaxHighlighting(
         { tag: tags.special(tags.string), fontWeight: "bold" }
     ])
 );
+
+const BOUNDARY_CHARS = new Set([" ", "(", ")", ":", ","]);
+const UNICODE_FORMS: Partial<Record<TokenName, string>> = {
+    empty: "ε",
+    universe_var: "𝔲",
+    equals: "≐",
+    negation: "¬",
+    conjunction: "∧",
+    disjunction: "∨",
+    universal: "∀",
+    existential: "∃",
+    in_constraint: "∈̇"
+};
+
+export const fc_formaliser = EditorView.inputHandler.of((view, from, _to, text, insert) => {
+    if (!BOUNDARY_CHARS.has(text)) {
+        // no changes to make if it isnt a boundary char being input (to avoid replacing too early)
+        return false;
+    }
+
+    const token = lex(view.state.doc.toString()).tokens.find(token => token.span.end === from);
+    const replacement = token && UNICODE_FORMS[token.name];
+
+    view.dispatch(insert());
+
+    // replace the source token with the formalised one if it exists
+    if (token && replacement && token.value !== replacement) {
+        view.dispatch({
+            changes: {from: token.span.start, to: token.span.end, insert: replacement},
+            annotations: isolateHistory.of("full"),
+            userEvent: "input.replace",
+        });
+    }
+
+    return true;
+});

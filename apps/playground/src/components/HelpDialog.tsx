@@ -172,6 +172,3 @@ export const HelpDialog = ({open, on_closed}: { open: boolean, on_closed: () => 
         </div>
     </Dialog>
 );
-
-// TODO: option to automatically replace ascii forms with unicode forms in the query input
-// TODO: shortcuts to invoke the unicode? i suppose replacement covers it though
