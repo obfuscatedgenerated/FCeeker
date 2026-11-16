@@ -6,7 +6,8 @@
     "check-assignment": "tsx scripts/check_assignment.ts",
     "solve": "tsx scripts/solve.ts",
     "test": "pnpm run -r test",
-    "test:coverage": "pnpm run -r test:coverage"
+    "test:coverage": "pnpm run -r test:coverage",
+    "build:playground": "cd apps/playground && pnpm run build"
   },
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
