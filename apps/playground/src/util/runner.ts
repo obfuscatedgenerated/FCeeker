@@ -18,8 +18,7 @@ export const parse_fc = (fc_contents: string) => {
 // promise based wrapper that invokes the procedure calls in the worker, then resolves with the result (with the same signature as pure execute)
 // TODO: abortsignal for early cancel
 export const execute_fc_in_worker = async (ast: FormulaNode, input_word: string, opts: ExecuteOpts & {abort_signal?: AbortSignal} = {}): Promise<QueryResult> => {
-    const url = new URL("../worker", import.meta.url);
-    const worker = new Worker(url, {type: "module"});
+    const worker = new Worker(new URL("../worker/index.ts", import.meta.url), {type: "module"});
 
     const send = (message: WorkerRequestMessage) => worker.postMessage(message);
 
