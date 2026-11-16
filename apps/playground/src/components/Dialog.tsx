@@ -35,7 +35,7 @@ export const Dialog = ({
     }, [open]);
 
     return (
-        <dialog className="modal" ref={dialog_ref} onClose={on_closed} onCancel={!needs_action && on_closed}>
+        <dialog className="modal" ref={dialog_ref} onClose={on_closed} onCancel={needs_action ? undefined : on_closed}>
             <div className={`modal-box max-w-[95vw] sm:max-w-2xl w-full ${className}`}>
                 <div className="flex items-center justify-between gap-4 mb-4">
                     {title && <h3 className="font-bold text-xl">{title}</h3>}

@@ -24,12 +24,17 @@ export const fc_linter = linter(view => {
 
     const parsed = parse_fc(doc);
     if (!parsed.success) {
-        return parsed.errors.map(e => ({
-            from: e.span.start,
-            to: e.span.end,
-            severity: "error",
-            message: `${e.kind}: ${e.message}`
-        } satisfies Diagnostic));
+        return parsed.errors.map(e => {
+            // fallback to whole document if no span is provided
+            const span = e.span ?? {start: 0, end: doc.length};
+
+            return {
+                from: span.start,
+                to: span.end,
+                severity: "error",
+                message: `${e.kind}: ${e.message}`
+            } satisfies Diagnostic;
+        });
     }
 
     return [];

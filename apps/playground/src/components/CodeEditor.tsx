@@ -25,7 +25,7 @@ export const CodeEditor = ({
     className = "",
     extra_buttons = null,
     file_ext,
-    extensions,
+    extensions = [],
     on_error_count_change
 }: CodeEditorProps) => {
     const dark_mode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -88,7 +88,7 @@ export const CodeEditor = ({
                     await writable.close();
                     return;
                 } catch (e) {
-                    if (e.name === "AbortError") {
+                    if (e instanceof Error && e.name === "AbortError") {
                         // cancelled by user, don't retry
                         return;
                     }

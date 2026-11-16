@@ -5,7 +5,7 @@ import {collect_free_variables, type QueryResult} from "@fceeker/core";
 
 export interface ExecutionContextType {
     running: boolean;
-    run_query: (fc_query: string, input_word: string) => Promise<QueryResult>;
+    run_query: (fc_query: string, input_word: string) => Promise<QueryResult | null>;
     cancel: () => void;
     progress?: {
         value: number;
@@ -33,7 +33,7 @@ export const ExecutionProvider = ({children}: {children: React.ReactNode}) => {
             const parsed = parse_fc(fc_query);
             if (!parsed.success) {
                 // TODO: handle error highlight
-                return;
+                return null;
             }
 
             console.log(parsed.ast);

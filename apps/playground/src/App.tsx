@@ -174,7 +174,8 @@ const AppInternal = () => {
             {sidebar_visible && <StyledSeparator vertical/>}
 
             <Panel panelRef={sidebar_panel_ref} collapsible minSize="20%" defaultSize={0} onResize={() => {
-                if (sidebar_panel_ref.current.isCollapsed()) {
+                const sidebar_panel = sidebar_panel_ref.current;
+                if (sidebar_panel?.isCollapsed()) {
                     setSidebarVisible(false);
                 }
             }}>
