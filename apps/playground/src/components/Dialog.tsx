@@ -7,6 +7,7 @@ interface DialogProps {
     open: boolean;
     on_closed: () => void;
     className?: string;
+    needs_action?: boolean;
 }
 
 export const Dialog = ({
@@ -15,6 +16,7 @@ export const Dialog = ({
     open,
     on_closed,
     className = "",
+    needs_action = false
 }: DialogProps) => {
     const dialog_ref = useRef<HTMLDialogElement | null>(null);
 
@@ -33,20 +35,26 @@ export const Dialog = ({
     }, [open]);
 
     return (
-        <dialog className="modal" ref={dialog_ref} onClose={on_closed} onCancel={on_closed}>
+        <dialog className="modal" ref={dialog_ref} onClose={on_closed} onCancel={!needs_action && on_closed}>
             <div className={`modal-box max-w-[95vw] sm:max-w-2xl w-full ${className}`}>
                 <div className="flex items-center justify-between gap-4 mb-4">
                     {title && <h3 className="font-bold text-xl">{title}</h3>}
-                    <form method="dialog">
-                        <button className="cursor-pointer"><X /></button>
-                    </form>
+                    {!needs_action && (
+                        <form method="dialog">
+                            <button className="cursor-pointer"><X /></button>
+                        </form>
+                    )}
                 </div>
 
                 {children}
             </div>
-            <form method="dialog" className="modal-backdrop">
-                <button>(close dialog)</button>
-            </form>
+            {!needs_action ? (
+                <form method="dialog" className="modal-backdrop">
+                    <button>(close dialog)</button>
+                </form>
+            ) : (
+                <div className="modal-backdrop" />
+            )}
         </dialog>
     );
 }
