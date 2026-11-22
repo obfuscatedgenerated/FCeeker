@@ -1,6 +1,7 @@
 {
   "name": "fceeker",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "check-ast": "tsx scripts/check_ast.ts",
     "check-assignment": "tsx scripts/check_assignment.ts",

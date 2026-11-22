@@ -1,0 +1,9 @@
+{
+  "name": "@fceeker/test",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@fceeker/core": "workspace:*",
+    "@fceeker/parser-antlr": "workspace:*"
+  }
+}

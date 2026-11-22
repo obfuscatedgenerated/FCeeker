@@ -2,6 +2,7 @@ packages:
   - packages/*
   - apps/*
   - scripts/
+  - test/
 
 catalog:
   '@types/node': 22.18.0
