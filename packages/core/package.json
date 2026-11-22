@@ -1,10 +1,7 @@
 {
   "name": "@fceeker/core",
   "type": "module",
-  "scripts": {
-    "test": "jest",
-    "test:coverage": "jest --coverage"
-  },
+  "scripts": {},
   "exports": {
     ".": "./src/index.ts"
   },

@@ -5,18 +5,15 @@
     "check-ast": "tsx scripts/check_ast.ts",
     "check-assignment": "tsx scripts/check_assignment.ts",
     "solve": "tsx scripts/solve.ts",
-    "test": "pnpm run -r test",
-    "test:coverage": "pnpm run -r test:coverage",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "build:playground": "cd apps/playground && pnpm run build"
   },
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
+    "@vitest/coverage-v8": "catalog:",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
-  },
-  "dependencies": {
-    "@types/jest": "catalog:",
-    "jest": "catalog:",
-    "ts-jest": "catalog:"
+    "typescript": "^7.0.2",
+    "vitest": "catalog:"
   }
 }
